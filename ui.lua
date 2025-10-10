@@ -252,19 +252,20 @@ function Toggle.new(option, accentColor, parent)
     })
     
     self.label = CreateTextLabel(self.container, {
-        Size = UDim2.new(0, 175, 1, 0),
+        Size = UDim2.new(0, 160, 1, 0),
         Position = UDim2.new(0, 0, 0, 0),
         Text = option.Name,
         TextSize = CONFIG.TEXT_SIZE.OPTION,
         TextColor3 = CONFIG.COLORS.TEXT_INACTIVE,
         BackgroundTransparency = 1,
         TextXAlignment = Enum.TextXAlignment.Left,
-        Font = Enum.Font.Gotham
+        Font = Enum.Font.Gotham,
+        TextYAlignment = Enum.TextYAlignment.Center
     })
     
     self.toggleFrame = CreateFrame(self.container, {
         Size = UDim2.new(0, CONFIG.LAYOUT.TOGGLE_WIDTH, 0, CONFIG.LAYOUT.TOGGLE_HEIGHT),
-        Position = UDim2.new(0, 175, 0.5, -CONFIG.LAYOUT.TOGGLE_HEIGHT/2),
+        Position = UDim2.new(1, -CONFIG.LAYOUT.TOGGLE_WIDTH, 0.5, -CONFIG.LAYOUT.TOGGLE_HEIGHT/2),
         BackgroundColor3 = CONFIG.COLORS.TOGGLE_OFF,
         BackgroundTransparency = 0.2
     })
@@ -329,19 +330,26 @@ function Slider.new(option, accentColor, parent)
     })
     
     self.label = CreateTextLabel(self.container, {
-        Size = UDim2.new(0, 75, 1, 0),
+        Size = UDim2.new(1, 0, 0, 20),
         Position = UDim2.new(0, 0, 0, 0),
         Text = option.Name,
         TextSize = CONFIG.TEXT_SIZE.OPTION,
         TextColor3 = CONFIG.COLORS.TEXT_DEFAULT,
         BackgroundTransparency = 1,
         TextXAlignment = Enum.TextXAlignment.Left,
-        Font = Enum.Font.Gotham
+        Font = Enum.Font.Gotham,
+        TextYAlignment = Enum.TextYAlignment.Center
     })
     
-    self.sliderBg = CreateFrame(self.container, {
-        Size = UDim2.new(0, 100, 0, CONFIG.LAYOUT.SLIDER_HEIGHT),
-        Position = UDim2.new(0, 75, 0, 5),
+    self.sliderContainer = CreateFrame(self.container, {
+        Size = UDim2.new(1, 0, 0, 25),
+        Position = UDim2.new(0, 0, 0, 20),
+        BackgroundTransparency = 1
+    })
+    
+    self.sliderBg = CreateFrame(self.sliderContainer, {
+        Size = UDim2.new(1, -60, 0, CONFIG.LAYOUT.SLIDER_HEIGHT),
+        Position = UDim2.new(0, 0, 0.5, -CONFIG.LAYOUT.SLIDER_HEIGHT/2),
         BackgroundColor3 = CONFIG.COLORS.SLIDER_BG,
         BackgroundTransparency = 0.2
     })
@@ -355,23 +363,24 @@ function Slider.new(option, accentColor, parent)
     })
     CreateUICorner(self.sliderFill, 3)
     
-    self.sliderCircle = CreateFrame(self.container, {
+    self.sliderCircle = CreateFrame(self.sliderContainer, {
         Size = UDim2.new(0, CONFIG.LAYOUT.SLIDER_CIRCLE_RADIUS * 2, 0, CONFIG.LAYOUT.SLIDER_CIRCLE_RADIUS * 2),
-        Position = UDim2.new(0, 75, 0, 8 - CONFIG.LAYOUT.SLIDER_CIRCLE_RADIUS),
+        Position = UDim2.new(0, 0, 0.5, -CONFIG.LAYOUT.SLIDER_CIRCLE_RADIUS),
         BackgroundColor3 = Color3.new(1, 1, 1),
         BackgroundTransparency = 0
     })
     CreateUICorner(self.sliderCircle, CONFIG.LAYOUT.SLIDER_CIRCLE_RADIUS)
     
     self.valueText = CreateTextLabel(self.container, {
-        Size = UDim2.new(0, 50, 1, 0),
-        Position = UDim2.new(0, 180, 0, 0),
+        Size = UDim2.new(0, 50, 0, 20),
+        Position = UDim2.new(1, -50, 0, 0),
         Text = tostring(math.floor(option.Value)),
         TextSize = CONFIG.TEXT_SIZE.OPTION,
         TextColor3 = CONFIG.COLORS.TEXT_DEFAULT,
         BackgroundTransparency = 1,
-        TextXAlignment = Enum.TextXAlignment.Left,
-        Font = Enum.Font.Gotham
+        TextXAlignment = Enum.TextXAlignment.Right,
+        Font = Enum.Font.Gotham,
+        TextYAlignment = Enum.TextYAlignment.Center
     })
     
     self:UpdateVisuals()
@@ -381,10 +390,11 @@ end
 
 function Slider:UpdateVisuals()
     local percent = (self.option.Value - self.option.Min) / (self.option.Max - self.option.Min)
-    local fillWidth = 100 * percent
+    local sliderWidth = self.sliderBg.AbsoluteSize.X
+    local fillWidth = sliderWidth * percent
     
     self.sliderFill.Size = UDim2.new(0, fillWidth, 1, 0)
-    self.sliderCircle.Position = UDim2.new(0, 75 + fillWidth - CONFIG.LAYOUT.SLIDER_CIRCLE_RADIUS, 0, 8 - CONFIG.LAYOUT.SLIDER_CIRCLE_RADIUS)
+    self.sliderCircle.Position = UDim2.new(0, fillWidth - CONFIG.LAYOUT.SLIDER_CIRCLE_RADIUS, 0.5, -CONFIG.LAYOUT.SLIDER_CIRCLE_RADIUS)
     self.valueText.Text = tostring(math.floor(self.option.Value))
 end
 
@@ -445,23 +455,24 @@ function MultiSelect.new(option, accentColor, parent)
     })
     
     self.label = CreateTextLabel(self.container, {
-        Size = UDim2.new(0, 100, 1, 0),
+        Size = UDim2.new(1, 0, 0, 20),
         Position = UDim2.new(0, 0, 0, 0),
         Text = option.Name,
         TextSize = CONFIG.TEXT_SIZE.OPTION,
         TextColor3 = CONFIG.COLORS.TEXT_DEFAULT,
         BackgroundTransparency = 1,
         TextXAlignment = Enum.TextXAlignment.Left,
-        Font = Enum.Font.Gotham
+        Font = Enum.Font.Gotham,
+        TextYAlignment = Enum.TextYAlignment.Center
     })
     
     self.button = CreateFrame(self.container, {
-        Size = UDim2.new(0, 115, 0, CONFIG.LAYOUT.BUTTON_HEIGHT),
-        Position = UDim2.new(0, 100, 0, -2),
+        Size = UDim2.new(1, 0, 0, CONFIG.LAYOUT.BUTTON_HEIGHT),
+        Position = UDim2.new(0, 0, 0, 25),
         BackgroundColor3 = CONFIG.COLORS.BUTTON_BG,
         BackgroundTransparency = 0.2
     })
-    CreateUICorner(self.button, 3)
+    CreateUICorner(self.button, 5)
     
     self.buttonText = CreateTextLabel(self.button, {
         Size = UDim2.new(1, -10, 1, 0),
@@ -471,46 +482,51 @@ function MultiSelect.new(option, accentColor, parent)
         TextColor3 = CONFIG.COLORS.TEXT_DEFAULT,
         BackgroundTransparency = 1,
         TextXAlignment = Enum.TextXAlignment.Left,
-        Font = Enum.Font.Gotham
+        Font = Enum.Font.Gotham,
+        TextYAlignment = Enum.TextYAlignment.Center
     })
     
-    self.dropdownBg = CreateFrame(parent, {
-        Size = UDim2.new(0, 115, 0, 0),
+    self.dropdownBg = CreateFrame(parent.Parent, {
+        Size = UDim2.new(0, 0, 0, 0),
         Position = UDim2.new(0, 0, 0, 0),
         BackgroundColor3 = CONFIG.COLORS.DROPDOWN_BG,
         BackgroundTransparency = 1 - CONFIG.OPACITY.DROPDOWN,
         Visible = false,
-        ClipsDescendants = true
+        ClipsDescendants = true,
+        ZIndex = 10
     })
-    CreateUICorner(self.dropdownBg, 3)
+    CreateUICorner(self.dropdownBg, 5)
     CreateUIStroke(self.dropdownBg, {Color = CONFIG.COLORS.TOGGLE_OFF, Thickness = 1})
     
     for _, itemName in ipairs(option.Options) do
         local itemFrame = CreateFrame(self.dropdownBg, {
             Size = UDim2.new(1, 0, 0, CONFIG.LAYOUT.DROPDOWN_ITEM_HEIGHT),
             Position = UDim2.new(0, 0, 0, 5 + (#self.dropdownElements * CONFIG.LAYOUT.DROPDOWN_ITEM_HEIGHT)),
-            BackgroundTransparency = 1
+            BackgroundTransparency = 1,
+            ZIndex = 11
         })
         
         local checkbox = CreateFrame(itemFrame, {
             Size = UDim2.new(0, 16, 0, 16),
-            Position = UDim2.new(0, 5, 0, 3),
+            Position = UDim2.new(0, 5, 0.5, -8),
             BackgroundColor3 = CONFIG.COLORS.CHECKBOX_OFF,
-            BackgroundTransparency = 0.2
+            BackgroundTransparency = 0.2,
+            ZIndex = 12
         })
-        CreateUICorner(checkbox, 2)
+        CreateUICorner(checkbox, 3)
         
         local checkmark = CreateTextLabel(checkbox, {
             Size = UDim2.new(1, 0, 1, 0),
             Position = UDim2.new(0, 0, 0, 0),
             Text = "✓",
-            TextSize = 14,
+            TextSize = 12,
             TextColor3 = Color3.new(1, 1, 1),
             BackgroundTransparency = 1,
             TextXAlignment = Enum.TextXAlignment.Center,
             TextYAlignment = Enum.TextYAlignment.Center,
             Font = Enum.Font.GothamBold,
-            Visible = false
+            Visible = false,
+            ZIndex = 13
         })
         
         local itemText = CreateTextLabel(itemFrame, {
@@ -521,7 +537,9 @@ function MultiSelect.new(option, accentColor, parent)
             TextColor3 = CONFIG.COLORS.TEXT_DEFAULT,
             BackgroundTransparency = 1,
             TextXAlignment = Enum.TextXAlignment.Left,
-            Font = Enum.Font.Gotham
+            Font = Enum.Font.Gotham,
+            TextYAlignment = Enum.TextYAlignment.Center,
+            ZIndex = 12
         })
         
         table.insert(self.dropdownElements, {
@@ -549,7 +567,7 @@ function MultiSelect:UpdateVisuals()
     
     if self.isOpen then
         local dropdownHeight = #self.dropdownElements * CONFIG.LAYOUT.DROPDOWN_ITEM_HEIGHT + 10
-        self.dropdownBg.Size = UDim2.new(0, 115, 0, dropdownHeight)
+        self.dropdownBg.Size = UDim2.new(1, 0, 0, dropdownHeight)
         self.dropdownBg.Visible = true
         
         for i, elem in ipairs(self.dropdownElements) do
@@ -573,6 +591,13 @@ function MultiSelect:HandleClick(mx, my)
             ActiveDropdown:UpdateVisuals()
         end
         ActiveDropdown = self.isOpen and self or nil
+        
+        -- Position dropdown below button
+        if self.isOpen then
+            self.dropdownBg.Position = UDim2.new(0, buttonAbsPos.X, 0, buttonAbsPos.Y + buttonAbsSize.Y + 2)
+            self.dropdownBg.Size = UDim2.new(0, buttonAbsSize.X, 0, math.min(#self.dropdownElements * CONFIG.LAYOUT.DROPDOWN_ITEM_HEIGHT + 10, 200))
+        end
+        
         self:UpdateVisuals()
         return true
     end
@@ -643,7 +668,8 @@ function Section.new(data, accentColor, parent)
         BackgroundTransparency = 1 - CONFIG.OPACITY.BLOCK,
         ClipsDescendants = true
     })
-    CreateUICorner(self.container, 5)
+    CreateUICorner(self.container, 8)
+    CreateUIStroke(self.container, {Color = Color3.fromRGB(50, 50, 50), Thickness = 1})
     
     self.title = CreateTextLabel(self.container, {
         Size = UDim2.new(1, -CONFIG.LAYOUT.BLOCK_PADDING * 2, 0, CONFIG.TEXT_SIZE.BLOCK_TITLE),
@@ -653,7 +679,8 @@ function Section.new(data, accentColor, parent)
         TextColor3 = CONFIG.COLORS.TEXT_DEFAULT,
         BackgroundTransparency = 1,
         TextXAlignment = Enum.TextXAlignment.Left,
-        Font = Enum.Font.GothamBold
+        Font = Enum.Font.GothamBold,
+        TextYAlignment = Enum.TextYAlignment.Center
     })
     
     self.components = {}
@@ -820,7 +847,7 @@ end
 function Library:Create(options)
     local self = setmetatable({}, Library)
     
-    self.Name = options.Name or "UI Library"
+    self.Name = options.Name or "My UI"
     self.AccentColor = options.AccentColor or CONFIG.COLORS.TOGGLE_ON
     self.ToggleKey = options.ToggleKey or CONFIG.TOGGLE_KEY
     
@@ -843,13 +870,15 @@ function Library:Create(options)
     self.tabButtons = {}
     self.activeTab = nil
     
-    -- Create main panels
+    -- Create main panels with rounded corners
     self.leftPanel = CreateFrame(ScreenGui, {
         Position = UDim2.new(0, Panel.x, 0, Panel.y),
         Size = UDim2.new(0, CONFIG.GUI.LEFT_WIDTH, 0, CONFIG.GUI.HEIGHT),
         BackgroundColor3 = CONFIG.COLORS.LEFT_PANEL,
         BackgroundTransparency = 1 - CONFIG.OPACITY.LEFT
     })
+    CreateUICorner(self.leftPanel, 10)
+    CreateUIStroke(self.leftPanel, {Color = Color3.fromRGB(40, 40, 40), Thickness = 1})
     
     self.rightPanel = CreateFrame(ScreenGui, {
         Position = UDim2.new(0, Panel.x + CONFIG.GUI.LEFT_WIDTH, 0, Panel.y),
@@ -858,6 +887,8 @@ function Library:Create(options)
         BackgroundTransparency = 1 - CONFIG.OPACITY.RIGHT,
         ClipsDescendants = true
     })
+    CreateUICorner(self.rightPanel, 10)
+    CreateUIStroke(self.rightPanel, {Color = Color3.fromRGB(40, 40, 40), Thickness = 1})
     
     self.nickBlock = CreateFrame(self.leftPanel, {
         Position = UDim2.new(0, 0, 1, -CONFIG.LAYOUT.NICK_HEIGHT),
@@ -865,6 +896,7 @@ function Library:Create(options)
         BackgroundColor3 = CONFIG.COLORS.NICK_BLOCK,
         BackgroundTransparency = 1 - CONFIG.OPACITY.NICK_BLOCK
     })
+    CreateUICorner(self.nickBlock, 0, 0, 10, 10)
     
     self.nickCircle = CreateFrame(self.nickBlock, {
         Size = UDim2.new(0, CONFIG.LAYOUT.AVATAR_SIZE, 0, CONFIG.LAYOUT.AVATAR_SIZE),
@@ -899,7 +931,8 @@ function Library:Create(options)
         TextColor3 = CONFIG.COLORS.TEXT_DEFAULT,
         BackgroundTransparency = 1,
         TextXAlignment = Enum.TextXAlignment.Left,
-        Font = Enum.Font.GothamBold
+        Font = Enum.Font.GothamBold,
+        TextYAlignment = Enum.TextYAlignment.Center
     })
     
     self.title = CreateTextLabel(self.leftPanel, {
@@ -910,7 +943,8 @@ function Library:Create(options)
         TextColor3 = CONFIG.COLORS.TEXT_DEFAULT,
         BackgroundTransparency = 1,
         TextXAlignment = Enum.TextXAlignment.Center,
-        Font = Enum.Font.GothamBold
+        Font = Enum.Font.GothamBold,
+        TextYAlignment = Enum.TextYAlignment.Center
     })
     
     self.dragging = false
@@ -920,7 +954,10 @@ function Library:Create(options)
     
     ScrollManager:Init(self.rightPanel)
     
-    self:SetVisible(false)
+    -- Auto show on execute
+    GUI_Initialized = true
+    GUI_Visible = true
+    self:SetVisible(true)
     self:StartLoop()
     
     return self
@@ -940,7 +977,8 @@ function Library:Tab(options)
             TextColor3 = CONFIG.COLORS.TEXT_DEFAULT,
             BackgroundTransparency = 1,
             TextXAlignment = Enum.TextXAlignment.Left,
-            Font = Enum.Font.Gotham
+            Font = Enum.Font.Gotham,
+            TextYAlignment = Enum.TextYAlignment.Center
         }),
         box = CreateFrame(self.leftPanel, {
             Size = UDim2.new(1, -20, 0, CONFIG.LAYOUT.LINE_SPACING - 10),
@@ -948,6 +986,19 @@ function Library:Tab(options)
             BackgroundTransparency = 1
         })
     }
+    
+    -- Add hover effect
+    tabButton.box.MouseEnter:Connect(function()
+        if not tabButton.tab.isActive then
+            tabButton.text.TextColor3 = self.AccentColor
+        end
+    end)
+    
+    tabButton.box.MouseLeave:Connect(function()
+        if not tabButton.tab.isActive then
+            tabButton.text.TextColor3 = CONFIG.COLORS.TEXT_DEFAULT
+        end
+    end)
     
     table.insert(self.tabButtons, tabButton)
     table.insert(self.tabs, tab)
@@ -1137,11 +1188,6 @@ function Library:HandleToggle()
         if now - self.lastToggle > CONFIG.TOGGLE_COOLDOWN then
             GUI_Visible = not GUI_Visible
             self:SetVisible(GUI_Visible)
-            
-            if not GUI_Initialized and GUI_Visible then
-                GUI_Initialized = true
-            end
-            
             self.lastToggle = now
         end
     end
@@ -1150,8 +1196,6 @@ end
 function Library:StartLoop()
     RunService.RenderStepped:Connect(function()
         self:HandleToggle()
-        if not GUI_Visible then return end
-        
         self:HandleInput()
         self:UpdateBlocks()
     end)
