@@ -1,1213 +1,776 @@
--- UI Library for Roblox
-local Library = {}
-Library.__index = Library
+--[[------------------------------------------------
+|
+|    Library Made for IonHub (discord.gg/seU6gab)
+|    Developed by tatar0071#0627 and tested#0021
+|    IF YOU USE THIS, PLEASE CREDIT DEVELOPER(S)!
+|
+--]]------------------------------------------------
 
 -- Services
+local Workspace = game:GetService("Workspace")
+local Camera = Workspace.CurrentCamera
 local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer
 local RunService = game:GetService("RunService")
-local UserInputService = game:GetService("UserInputService")
-local TweenService = game:GetService("TweenService")
+local CoreGui = game:GetService("CoreGui")
 
--- Local player
-local Player = Players.LocalPlayer
+-- Framework
+local Framework = {}; Framework.__index = Framework; do
+    function Framework:Round_V2(V2)
+        return Vector2.new(math.floor(V2.X + 0.5), math.floor(V2.Y + 0.5))
+    end
+    function Framework:V3_To_V2(V3)
+        return Vector2.new(V3.X, V3.Y)
+    end
+    function Framework:Draw(Object, Properties)
+        Object = Drawing.new(Object)
+        for Property, Value in pairs(Properties) do
+            Object[Property] = Value
+        end
+        return Object
+    end
+    function Framework:Instance(Object, Properties)
+        Object = Instance.new(Object)
+        for Property, Value in pairs(Properties) do
+            Object[Property] = Value
+        end
+        return Object
+    end
+    function Framework:Get_Bounding_Vectors(Part)
+        local Part_CFrame, Part_Size = Part.CFrame, Part.Size 
+        local X, Y, Z = Part_Size.X, Part_Size.Y, Part_Size.Z
+        return {
+            TBRC = Part_CFrame * CFrame.new(X, Y * 1.3, Z),
+            TBLC = Part_CFrame * CFrame.new(-X, Y * 1.3, Z),
+            TFRC = Part_CFrame * CFrame.new(X, Y * 1.3, -Z),
+            TFLC = Part_CFrame * CFrame.new(-X, Y * 1.3, -Z),
+            BBRC = Part_CFrame * CFrame.new(X, -Y * 1.6, Z),
+            BBLC = Part_CFrame * CFrame.new(-X, -Y * 1.6, Z),
+            BFRC = Part_CFrame * CFrame.new(X, -Y * 1.6, -Z),
+            BFLC = Part_CFrame * CFrame.new(-X, -Y * 1.6, -Z),
+        };
+    end
+    function Framework:Drawing_Transparency(Transparency)
+        return 1 - Transparency
+    end
+end
 
--- Configuration
-local CONFIG = {
-    TOGGLE_KEY = Enum.KeyCode.P,
-    TOGGLE_COOLDOWN = 0.25,
-    
-    GUI = {
-        X = 200, Y = 120,
-        WIDTH = 770, HEIGHT = 520,
-        LEFT_WIDTH = 195
-    },
-    
-    COLORS = {
-        LEFT_PANEL = Color3.fromRGB(5, 5, 5),
-        RIGHT_PANEL = Color3.fromRGB(0, 0, 0),
-        NICK_BLOCK = Color3.fromRGB(30, 30, 30),
-        NICK_CIRCLE = Color3.fromRGB(70, 70, 70),
-        BLOCK_BG = Color3.fromRGB(25, 25, 25),
-        TOGGLE_OFF = Color3.fromRGB(60, 60, 60),
-        TOGGLE_ON = Color3.fromRGB(100, 150, 255),
-        SLIDER_BG = Color3.fromRGB(40, 40, 40),
-        SLIDER_FILL = Color3.fromRGB(100, 150, 255),
-        ACTIVE_TAB = Color3.fromRGB(100, 150, 255),
-        TEXT_DEFAULT = Color3.new(1, 1, 1),
-        TEXT_INACTIVE = Color3.fromRGB(150, 150, 150),
-        HEADER = Color3.fromRGB(180, 180, 180),
-        SCROLLBAR_BG = Color3.fromRGB(30, 30, 30),
-        SCROLLBAR_THUMB = Color3.fromRGB(100, 150, 255),
-        BUTTON_BG = Color3.fromRGB(50, 50, 50),
-        DROPDOWN_BG = Color3.fromRGB(20, 20, 20),
-        CHECKBOX_OFF = Color3.fromRGB(60, 60, 60),
-        CHECKBOX_ON = Color3.fromRGB(100, 150, 255)
-    },
-    
-    OPACITY = {
-        LEFT = 0.6,
-        RIGHT = 0.92,
-        NICK_BLOCK = 0.92,
-        BLOCK = 0.85,
-        SCROLLBAR = 0.95,
-        DROPDOWN = 0.98
-    },
-    
-    LAYOUT = {
-        LINE_SPACING = 40,
-        TEXT_OFFSET_X = 50,
-        NICK_HEIGHT = 50,
-        AVATAR_SIZE = 30,
-        BLOCK_PADDING = 15,
-        BLOCK_SPACING = 15,
-        OPTION_HEIGHT = 30,
-        OPTION_SPACING = 8,
-        TOGGLE_WIDTH = 40,
-        TOGGLE_HEIGHT = 20,
-        TOGGLE_CIRCLE_RADIUS = 8,
-        SLIDER_HEIGHT = 6,
-        SLIDER_CIRCLE_RADIUS = 10,
-        SCROLLBAR_WIDTH = 10,
-        BUTTON_HEIGHT = 25,
-        DROPDOWN_ITEM_HEIGHT = 25
-    },
-    
-    TEXT_SIZE = {
-        TITLE = 27,
-        HEADER = 13,
-        BUTTON = 16,
-        BLOCK_TITLE = 16,
-        OPTION = 12,
-        NICK = 18
-    }
+-- Main
+if not isfolder("ESP") then makefolder("ESP") end
+if not isfolder("ESP/assets") then makefolder("ESP/assets") end
+if not isfile("ESP/assets/taxi.oh") then
+    writefile("ESP/assets/taxi.oh", game:HttpGet("https://raw.githubusercontent.com/tatar0071/IonHub/main/Assets/taxi.png"))
+end
+if not isfile("ESP/assets/gorilla.oh") then
+    writefile("ESP/assets/gorilla.oh", game:HttpGet("https://raw.githubusercontent.com/tatar0071/IonHub/main/Assets/gorilla.png"))
+end
+if not isfile("ESP/assets/saul_goodman.oh") then
+    writefile("ESP/assets/saul_goodman.oh", game:HttpGet("https://raw.githubusercontent.com/tatar0071/IonHub/main/Assets/saul_goodman.png"))
+end
+if not isfile("ESP/assets/peter_griffin.oh") then
+    writefile("ESP/assets/peter_griffin.oh", game:HttpGet("https://raw.githubusercontent.com/tatar0071/IonHub/main/Assets/peter_griffin.png"))
+end
+if not isfile("ESP/assets/john_herbert.oh") then
+    writefile("ESP/assets/john_herbert.oh", game:HttpGet("https://raw.githubusercontent.com/tatar0071/IonHub/main/Assets/john_herbert.png"))
+end
+if not isfile("ESP/assets/fortnite.oh") then
+    writefile("ESP/assets/fortnite.oh", game:HttpGet("https://raw.githubusercontent.com/tatar0071/IonHub/main/Assets/fortnite.png"))
+end
+local Images = {
+    Taxi = readfile("ESP/assets/taxi.oh"),
+    Gorilla = readfile("ESP/assets/gorilla.oh"),
+    ["Saul Goodman"] = readfile("ESP/assets/saul_goodman.oh"),
+    ["Peter Griffin"] = readfile("ESP/assets/peter_griffin.oh"),
+    ["John Herbert"] = readfile("ESP/assets/john_herbert.oh"),
+    ["Fortnite"] = readfile("ESP/assets/fortnite.oh")
 }
 
--- Global variables
-local Panel = {x = CONFIG.GUI.X, y = CONFIG.GUI.Y}
-local GUI_Visible = false
-local GUI_Initialized = false
-local ActiveDropdown = nil
-local ScreenGui = nil
-
--- Utility functions
-local function PointInRect(px, py, rx, ry, rw, rh)
-    return px >= rx and py >= ry and px <= rx + rw and py <= ry + rh
-end
-
-local function PointInCircle(px, py, cx, cy, radius)
-    local dx, dy = px - cx, py - cy
-    return (dx * dx + dy * dy) <= (radius * radius)
-end
-
-local function Clamp(value, min, max)
-    return math.max(min, math.min(max, value))
-end
-
-local function Lerp(a, b, t)
-    return a + (b - a) * t
-end
-
-local function CreateFrame(parent, properties)
-    local frame = Instance.new("Frame")
-    for property, value in pairs(properties) do
-        frame[property] = value
-    end
-    frame.Parent = parent
-    return frame
-end
-
-local function CreateTextLabel(parent, properties)
-    local label = Instance.new("TextLabel")
-    for property, value in pairs(properties) do
-        label[property] = value
-    end
-    label.Parent = parent
-    return label
-end
-
-local function CreateImageLabel(parent, properties)
-    local image = Instance.new("ImageLabel")
-    for property, value in pairs(properties) do
-        image[property] = value
-    end
-    image.Parent = parent
-    return image
-end
-
-local function CreateUICorner(parent, cornerRadius)
-    local corner = Instance.new("UICorner")
-    corner.CornerRadius = UDim.new(0, cornerRadius)
-    corner.Parent = parent
-    return corner
-end
-
-local function CreateUIStroke(parent, properties)
-    local stroke = Instance.new("UIStroke")
-    for property, value in pairs(properties) do
-        stroke[property] = value
-    end
-    stroke.Parent = parent
-    return stroke
-end
-
--- Scroll Manager
-local ScrollManager = {
-    offset = 0,
-    maxOffset = 0,
-    draggingThumb = false,
-    dragStartY = 0,
-    dragStartOffset = 0
+local ESP; ESP = {
+    Settings = {
+        Enabled = false,
+        Bold_Text = false,
+        Objects_Enabled = false,
+        Team_Check = false,
+        Improved_Visible_Check = false,
+        Maximal_Distance = 1000,
+        Object_Maximal_Distance = 1000,
+        Highlight = {Enabled = false, Color = Color3.new(1, 0, 0), Target = ""},
+        Box = {Enabled = false, Color = Color3.new(1, 1, 1), Transparency = 0},
+        Box_Outline = {Enabled = false, Color = Color3.new(0, 0, 0), Transparency = 0, Outline_Size = 1},
+        Healthbar = {Enabled = false, Position = "Left", Color = Color3.new(1, 1, 1), Color_Lerp = Color3.fromRGB(40, 252, 3)},
+        Name = {Enabled = false, Position = "Top", Color = Color3.new(1, 1, 1), Transparency = 0, OutlineColor = Color3.new(0, 0, 0)},
+        Distance = {Enabled = false, Position = "Bottom", Color = Color3.new(1, 1, 1), Transparency = 0, OutlineColor = Color3.new(0, 0, 0)},
+        Tool = {Enabled = false, Position = "Right", Color = Color3.new(1, 1, 1), Transparency = 0, OutlineColor = Color3.new(0, 0, 0)},
+        Health = {Enabled = false, Position = "Right", Transparency = 0, OutlineColor = Color3.new(0, 0, 0)},
+        Chams = {Enabled = false, Color = Color3.new(1, 1, 1), Mode = "Visible", OutlineColor = Color3.new(0, 0, 0), Transparency = 0.5, OutlineTransparency = 0},
+        Image = {Enabled = false, Image = "Taxi", Raw = Images.Taxi},
+        China_Hat = {Enabled = false, Color = Color3.new(1, 1, 1), Transparency = 0.5, Height = 0.5, Radius = 1, Offset = 1}
+    },
+    Objects = {},
+    Overrides = {},
+    China_Hat = {}
 }
+ESP.__index = ESP
 
-function ScrollManager:Init(parent)
-    self.scrollbarBg = CreateFrame(parent, {
-        Size = UDim2.new(0, CONFIG.LAYOUT.SCROLLBAR_WIDTH, 1, -16),
-        Position = UDim2.new(1, -CONFIG.LAYOUT.SCROLLBAR_WIDTH - 8, 0, 8),
-        BackgroundColor3 = CONFIG.COLORS.SCROLLBAR_BG,
-        BackgroundTransparency = 1 - CONFIG.OPACITY.SCROLLBAR,
-        Visible = false
-    })
-    CreateUICorner(self.scrollbarBg, 5)
-    
-    self.scrollbarThumb = CreateFrame(parent, {
-        Size = UDim2.new(0, CONFIG.LAYOUT.SCROLLBAR_WIDTH, 0, 40),
-        Position = UDim2.new(1, -CONFIG.LAYOUT.SCROLLBAR_WIDTH - 8, 0, 8),
-        BackgroundColor3 = CONFIG.COLORS.SCROLLBAR_THUMB,
-        BackgroundTransparency = 1 - CONFIG.OPACITY.SCROLLBAR,
-        Visible = false
-    })
-    CreateUICorner(self.scrollbarThumb, 5)
-end
-
-function ScrollManager:UpdateMaxOffset(contentHeight, viewHeight)
-    self.maxOffset = math.max(0, contentHeight - viewHeight)
-    self.offset = Clamp(self.offset, 0, self.maxOffset)
-end
-
-function ScrollManager:Update(rightX, rightY, rightWidth, rightHeight)
-    if self.maxOffset > 10 then
-        self.scrollbarBg.Visible = GUI_Visible and GUI_Initialized
-        
-        local thumbHeight = math.max(40, (rightHeight - 16) * (rightHeight / (rightHeight + self.maxOffset)))
-        local scrollableHeight = rightHeight - 16 - thumbHeight
-        local thumbY = rightY + 8 + (scrollableHeight * (self.offset / self.maxOffset))
-        
-        self.scrollbarThumb.Size = UDim2.new(0, CONFIG.LAYOUT.SCROLLBAR_WIDTH, 0, thumbHeight)
-        self.scrollbarThumb.Position = UDim2.new(0, rightX + rightWidth - CONFIG.LAYOUT.SCROLLBAR_WIDTH - 8, 0, thumbY)
-        self.scrollbarThumb.Visible = GUI_Visible and GUI_Initialized
-    else
-        self.scrollbarBg.Visible = false
-        self.scrollbarThumb.Visible = false
-    end
-end
-
-function ScrollManager:HandleThumbDrag(mx, my)
-    if self.draggingThumb then
-        local rightY = Panel.y
-        local rightHeight = CONFIG.GUI.HEIGHT
-        local thumbHeight = math.max(40, (rightHeight - 16) * (rightHeight / (rightHeight + self.maxOffset)))
-        
-        local deltaY = my - self.dragStartY
-        local scrollRange = rightHeight - 16 - thumbHeight
-        if scrollRange > 0 then
-            local scrollDelta = (deltaY / scrollRange) * self.maxOffset
-            self.offset = Clamp(self.dragStartOffset + scrollDelta, 0, self.maxOffset)
+function ESP:UpdateImages()
+    self.Settings.Image.Raw = Images[self.Settings.Image.Image]
+    for _, Object in pairs(self.Objects) do
+        for Index, Drawing in pairs(Object.Components) do
+            if Index == "Image" then
+                Drawing.Data = self.Settings.Image.Raw
+            end
         end
-        return true
     end
-    return false
 end
 
-function ScrollManager:StartThumbDrag(mx, my)
-    if self.maxOffset <= 10 then return false end
-    
-    local pos = self.scrollbarThumb.AbsolutePosition
-    local size = self.scrollbarThumb.AbsoluteSize
-    
-    if PointInRect(mx, my, pos.X, pos.Y, size.X, size.Y) then
-        self.draggingThumb = true
-        self.dragStartY = my
-        self.dragStartOffset = self.offset
-        return true
+function ESP:GetObject(Object)
+    return self.Objects[Object]
+end
+
+function ESP:Toggle(State)
+    self.Settings.Enabled = State
+end
+
+function ESP:Get_Team(Player)
+    if self.Overrides.Get_Team ~= nil then
+        return self.Overrides.Get_Team(Player)
     end
-    return false
+    return Player.Team
 end
 
-function ScrollManager:StopThumbDrag()
-    self.draggingThumb = false
+function ESP:Get_Character(Player)
+    if ESP.Overrides.Get_Character ~= nil then
+        return ESP.Overrides.Get_Character(Player)
+    end
+    return Player.Character
 end
 
--- Toggle Component
-local Toggle = {}
-Toggle.__index = Toggle
-
-function Toggle.new(option, accentColor, parent)
-    local self = setmetatable({}, Toggle)
-    self.option = option
-    self.accentColor = accentColor or CONFIG.COLORS.TOGGLE_ON
-    
-    self.container = CreateFrame(parent, {
-        Size = UDim2.new(1, 0, 0, CONFIG.LAYOUT.OPTION_HEIGHT),
-        BackgroundTransparency = 1
-    })
-    
-    self.label = CreateTextLabel(self.container, {
-        Size = UDim2.new(0, 160, 1, 0),
-        Position = UDim2.new(0, 0, 0, 0),
-        Text = option.Name,
-        TextSize = CONFIG.TEXT_SIZE.OPTION,
-        TextColor3 = CONFIG.COLORS.TEXT_INACTIVE,
-        BackgroundTransparency = 1,
-        TextXAlignment = Enum.TextXAlignment.Left,
-        Font = Enum.Font.Gotham,
-        TextYAlignment = Enum.TextYAlignment.Center
-    })
-    
-    self.toggleFrame = CreateFrame(self.container, {
-        Size = UDim2.new(0, CONFIG.LAYOUT.TOGGLE_WIDTH, 0, CONFIG.LAYOUT.TOGGLE_HEIGHT),
-        Position = UDim2.new(1, -CONFIG.LAYOUT.TOGGLE_WIDTH, 0.5, -CONFIG.LAYOUT.TOGGLE_HEIGHT/2),
-        BackgroundColor3 = CONFIG.COLORS.TOGGLE_OFF,
-        BackgroundTransparency = 0.2
-    })
-    CreateUICorner(self.toggleFrame, 10)
-    
-    self.toggleCircle = CreateFrame(self.toggleFrame, {
-        Size = UDim2.new(0, CONFIG.LAYOUT.TOGGLE_CIRCLE_RADIUS * 2, 0, CONFIG.LAYOUT.TOGGLE_CIRCLE_RADIUS * 2),
-        Position = UDim2.new(0, 2, 0.5, -CONFIG.LAYOUT.TOGGLE_CIRCLE_RADIUS),
-        BackgroundColor3 = Color3.new(1, 1, 1),
-        BackgroundTransparency = 0
-    })
-    CreateUICorner(self.toggleCircle, CONFIG.LAYOUT.TOGGLE_CIRCLE_RADIUS)
-    
-    self:UpdateVisuals()
-    
-    return self
-end
-
-function Toggle:UpdateVisuals()
-    self.label.TextColor3 = self.option.Value and CONFIG.COLORS.TEXT_DEFAULT or CONFIG.COLORS.TEXT_INACTIVE
-    self.toggleFrame.BackgroundColor3 = self.option.Value and self.accentColor or CONFIG.COLORS.TOGGLE_OFF
-    
-    local circlePos = self.option.Value and 
-        (CONFIG.LAYOUT.TOGGLE_WIDTH - CONFIG.LAYOUT.TOGGLE_CIRCLE_RADIUS * 2 - 2) or 2
-    
-    self.toggleCircle.Position = UDim2.new(0, circlePos, 0.5, -CONFIG.LAYOUT.TOGGLE_CIRCLE_RADIUS)
-end
-
-function Toggle:HandleClick(mx, my)
-    local absPos = self.toggleFrame.AbsolutePosition
-    local absSize = self.toggleFrame.AbsoluteSize
-    
-    if PointInRect(mx, my, absPos.X, absPos.Y, absSize.X, absSize.Y) then
-        self.option.Value = not self.option.Value
-        self:UpdateVisuals()
-        
-        if self.option.Callback then
-            self.option.Callback(self.option.Value)
+function ESP:Get_Tool(Player)
+    if self.Overrides.Get_Tool ~= nil then
+        return self.Overrides.Get_Tool(Player)
+    end
+    local Character = self:Get_Character(Player)
+    if Character then
+        local Tool = Character:FindFirstChildOfClass("Tool")
+        if Tool then
+            return Tool.Name
         end
-        return true
     end
-    return false
+    return "Hands"
 end
 
-function Toggle:SetVisible(visible)
-    self.container.Visible = visible
-end
-
--- Slider Component
-local Slider = {}
-Slider.__index = Slider
-
-function Slider.new(option, accentColor, parent)
-    local self = setmetatable({}, Slider)
-    self.option = option
-    self.dragging = false
-    self.accentColor = accentColor or CONFIG.COLORS.SLIDER_FILL
-    
-    self.container = CreateFrame(parent, {
-        Size = UDim2.new(1, 0, 0, CONFIG.LAYOUT.OPTION_HEIGHT),
-        BackgroundTransparency = 1
-    })
-    
-    self.label = CreateTextLabel(self.container, {
-        Size = UDim2.new(1, 0, 0, 20),
-        Position = UDim2.new(0, 0, 0, 0),
-        Text = option.Name,
-        TextSize = CONFIG.TEXT_SIZE.OPTION,
-        TextColor3 = CONFIG.COLORS.TEXT_DEFAULT,
-        BackgroundTransparency = 1,
-        TextXAlignment = Enum.TextXAlignment.Left,
-        Font = Enum.Font.Gotham,
-        TextYAlignment = Enum.TextYAlignment.Center
-    })
-    
-    self.sliderContainer = CreateFrame(self.container, {
-        Size = UDim2.new(1, 0, 0, 25),
-        Position = UDim2.new(0, 0, 0, 20),
-        BackgroundTransparency = 1
-    })
-    
-    self.sliderBg = CreateFrame(self.sliderContainer, {
-        Size = UDim2.new(1, -60, 0, CONFIG.LAYOUT.SLIDER_HEIGHT),
-        Position = UDim2.new(0, 0, 0.5, -CONFIG.LAYOUT.SLIDER_HEIGHT/2),
-        BackgroundColor3 = CONFIG.COLORS.SLIDER_BG,
-        BackgroundTransparency = 0.2
-    })
-    CreateUICorner(self.sliderBg, 3)
-    
-    self.sliderFill = CreateFrame(self.sliderBg, {
-        Size = UDim2.new(0, 0, 1, 0),
-        Position = UDim2.new(0, 0, 0, 0),
-        BackgroundColor3 = self.accentColor,
-        BackgroundTransparency = 0.2
-    })
-    CreateUICorner(self.sliderFill, 3)
-    
-    self.sliderCircle = CreateFrame(self.sliderContainer, {
-        Size = UDim2.new(0, CONFIG.LAYOUT.SLIDER_CIRCLE_RADIUS * 2, 0, CONFIG.LAYOUT.SLIDER_CIRCLE_RADIUS * 2),
-        Position = UDim2.new(0, 0, 0.5, -CONFIG.LAYOUT.SLIDER_CIRCLE_RADIUS),
-        BackgroundColor3 = Color3.new(1, 1, 1),
-        BackgroundTransparency = 0
-    })
-    CreateUICorner(self.sliderCircle, CONFIG.LAYOUT.SLIDER_CIRCLE_RADIUS)
-    
-    self.valueText = CreateTextLabel(self.container, {
-        Size = UDim2.new(0, 50, 0, 20),
-        Position = UDim2.new(1, -50, 0, 0),
-        Text = tostring(math.floor(option.Value)),
-        TextSize = CONFIG.TEXT_SIZE.OPTION,
-        TextColor3 = CONFIG.COLORS.TEXT_DEFAULT,
-        BackgroundTransparency = 1,
-        TextXAlignment = Enum.TextXAlignment.Right,
-        Font = Enum.Font.Gotham,
-        TextYAlignment = Enum.TextYAlignment.Center
-    })
-    
-    self:UpdateVisuals()
-    
-    return self
-end
-
-function Slider:UpdateVisuals()
-    local percent = (self.option.Value - self.option.Min) / (self.option.Max - self.option.Min)
-    local sliderWidth = self.sliderBg.AbsoluteSize.X
-    local fillWidth = sliderWidth * percent
-    
-    self.sliderFill.Size = UDim2.new(0, fillWidth, 1, 0)
-    self.sliderCircle.Position = UDim2.new(0, fillWidth - CONFIG.LAYOUT.SLIDER_CIRCLE_RADIUS, 0.5, -CONFIG.LAYOUT.SLIDER_CIRCLE_RADIUS)
-    self.valueText.Text = tostring(math.floor(self.option.Value))
-end
-
-function Slider:HandleDrag(mx, my)
-    if self.dragging then
-        local absPos = self.sliderBg.AbsolutePosition
-        local absSize = self.sliderBg.AbsoluteSize
-        
-        local percent = Clamp((mx - absPos.X) / absSize.X, 0, 1)
-        self.option.Value = Lerp(self.option.Min, self.option.Max, percent)
-        self:UpdateVisuals()
-        
-        if self.option.Callback then
-            self.option.Callback(self.option.Value)
+function ESP:Get_Health(Player)
+    if self.Overrides.Get_Character ~= nil then
+        return self.Overrides.Get_Health(Player)
+    end
+    local Character = self:Get_Character(Player)
+    if Character then
+        local Humanoid = Character:FindFirstChildOfClass("Humanoid")
+        if Humanoid then
+            return Humanoid.Health
         end
-        return true
     end
-    return false
+    return 100
 end
 
-function Slider:StartDrag(mx, my)
-    local absPos = self.sliderBg.AbsolutePosition
-    local absSize = self.sliderBg.AbsoluteSize
-    local circlePos = self.sliderCircle.AbsolutePosition
-    
-    if PointInRect(mx, my, absPos.X, absPos.Y - 5, absSize.X, absSize.Y + 10) or
-       PointInCircle(mx, my, circlePos.X + CONFIG.LAYOUT.SLIDER_CIRCLE_RADIUS, 
-                    circlePos.Y + CONFIG.LAYOUT.SLIDER_CIRCLE_RADIUS, 
-                    CONFIG.LAYOUT.SLIDER_CIRCLE_RADIUS) then
-        self.dragging = true
-        return true
-    end
-    return false
-end
-
-function Slider:StopDrag()
-    self.dragging = false
-end
-
-function Slider:SetVisible(visible)
-    self.container.Visible = visible
-end
-
--- MultiSelect Component
-local MultiSelect = {}
-MultiSelect.__index = MultiSelect
-
-function MultiSelect.new(option, accentColor, parent)
-    local self = setmetatable({}, MultiSelect)
-    self.option = option
-    self.accentColor = accentColor or CONFIG.COLORS.CHECKBOX_ON
-    self.isOpen = false
-    self.dropdownElements = {}
-    
-    self.container = CreateFrame(parent, {
-        Size = UDim2.new(1, 0, 0, CONFIG.LAYOUT.OPTION_HEIGHT),
-        BackgroundTransparency = 1
-    })
-    
-    self.label = CreateTextLabel(self.container, {
-        Size = UDim2.new(1, 0, 0, 20),
-        Position = UDim2.new(0, 0, 0, 0),
-        Text = option.Name,
-        TextSize = CONFIG.TEXT_SIZE.OPTION,
-        TextColor3 = CONFIG.COLORS.TEXT_DEFAULT,
-        BackgroundTransparency = 1,
-        TextXAlignment = Enum.TextXAlignment.Left,
-        Font = Enum.Font.Gotham,
-        TextYAlignment = Enum.TextYAlignment.Center
-    })
-    
-    self.button = CreateFrame(self.container, {
-        Size = UDim2.new(1, 0, 0, CONFIG.LAYOUT.BUTTON_HEIGHT),
-        Position = UDim2.new(0, 0, 0, 25),
-        BackgroundColor3 = CONFIG.COLORS.BUTTON_BG,
-        BackgroundTransparency = 0.2
-    })
-    CreateUICorner(self.button, 5)
-    
-    self.buttonText = CreateTextLabel(self.button, {
-        Size = UDim2.new(1, -10, 1, 0),
-        Position = UDim2.new(0, 5, 0, 0),
-        Text = "Select...",
-        TextSize = CONFIG.TEXT_SIZE.OPTION,
-        TextColor3 = CONFIG.COLORS.TEXT_DEFAULT,
-        BackgroundTransparency = 1,
-        TextXAlignment = Enum.TextXAlignment.Left,
-        Font = Enum.Font.Gotham,
-        TextYAlignment = Enum.TextYAlignment.Center
-    })
-    
-    self.dropdownBg = CreateFrame(parent.Parent, {
-        Size = UDim2.new(0, 0, 0, 0),
-        Position = UDim2.new(0, 0, 0, 0),
-        BackgroundColor3 = CONFIG.COLORS.DROPDOWN_BG,
-        BackgroundTransparency = 1 - CONFIG.OPACITY.DROPDOWN,
-        Visible = false,
-        ClipsDescendants = true,
-        ZIndex = 10
-    })
-    CreateUICorner(self.dropdownBg, 5)
-    CreateUIStroke(self.dropdownBg, {Color = CONFIG.COLORS.TOGGLE_OFF, Thickness = 1})
-    
-    for _, itemName in ipairs(option.Options) do
-        local itemFrame = CreateFrame(self.dropdownBg, {
-            Size = UDim2.new(1, 0, 0, CONFIG.LAYOUT.DROPDOWN_ITEM_HEIGHT),
-            Position = UDim2.new(0, 0, 0, 5 + (#self.dropdownElements * CONFIG.LAYOUT.DROPDOWN_ITEM_HEIGHT)),
-            BackgroundTransparency = 1,
-            ZIndex = 11
-        })
-        
-        local checkbox = CreateFrame(itemFrame, {
-            Size = UDim2.new(0, 16, 0, 16),
-            Position = UDim2.new(0, 5, 0.5, -8),
-            BackgroundColor3 = CONFIG.COLORS.CHECKBOX_OFF,
-            BackgroundTransparency = 0.2,
-            ZIndex = 12
-        })
-        CreateUICorner(checkbox, 3)
-        
-        local checkmark = CreateTextLabel(checkbox, {
-            Size = UDim2.new(1, 0, 1, 0),
-            Position = UDim2.new(0, 0, 0, 0),
-            Text = "✓",
-            TextSize = 12,
-            TextColor3 = Color3.new(1, 1, 1),
-            BackgroundTransparency = 1,
-            TextXAlignment = Enum.TextXAlignment.Center,
-            TextYAlignment = Enum.TextYAlignment.Center,
-            Font = Enum.Font.GothamBold,
-            Visible = false,
-            ZIndex = 13
-        })
-        
-        local itemText = CreateTextLabel(itemFrame, {
-            Size = UDim2.new(1, -28, 1, 0),
-            Position = UDim2.new(0, 28, 0, 0),
-            Text = itemName,
-            TextSize = CONFIG.TEXT_SIZE.OPTION,
-            TextColor3 = CONFIG.COLORS.TEXT_DEFAULT,
-            BackgroundTransparency = 1,
-            TextXAlignment = Enum.TextXAlignment.Left,
-            Font = Enum.Font.Gotham,
-            TextYAlignment = Enum.TextYAlignment.Center,
-            ZIndex = 12
-        })
-        
-        table.insert(self.dropdownElements, {
-            name = itemName,
-            frame = itemFrame,
-            checkbox = checkbox,
-            checkmark = checkmark,
-            text = itemText,
-            selected = false
-        })
-    end
-    
-    self:UpdateVisuals()
-    
-    return self
-end
-
-function MultiSelect:UpdateVisuals()
-    local selectedCount = 0
-    for _, elem in ipairs(self.dropdownElements) do
-        if elem.selected then selectedCount = selectedCount + 1 end
-    end
-    
-    self.buttonText.Text = selectedCount > 0 and ("Selected: " .. selectedCount) or "Select..."
-    
-    if self.isOpen then
-        local dropdownHeight = #self.dropdownElements * CONFIG.LAYOUT.DROPDOWN_ITEM_HEIGHT + 10
-        self.dropdownBg.Size = UDim2.new(1, 0, 0, dropdownHeight)
-        self.dropdownBg.Visible = true
-        
-        for i, elem in ipairs(self.dropdownElements) do
-            elem.frame.Position = UDim2.new(0, 0, 0, 5 + (i - 1) * CONFIG.LAYOUT.DROPDOWN_ITEM_HEIGHT)
-            elem.checkbox.BackgroundColor3 = elem.selected and self.accentColor or CONFIG.COLORS.CHECKBOX_OFF
-            elem.checkmark.Visible = elem.selected
+local Passed = false
+local function Pass_Through(From, Target, RaycastParams_, Ignore_Table)
+    RaycastParams_.FilterDescendantsInstances = Ignore_Table
+    local Result = Workspace:Raycast(From, (Target.Position - From).unit * 10000, RaycastParams_)
+    if Result then
+        local Instance_ = Result.Instance
+        if Instance_:IsDescendantOf(Target.Parent) then
+            Passed = true
+            return true
+        elseif Instance_.CanCollide == false or Instance_.Transparency == 1 then
+            if Instance_.Name ~= "Head" and Instance_.Name ~= "HumanoidRootPart" then
+                table.insert(Ignore_Table, Instance_)
+                Pass_Through(Result.Position, Target, RaycastParams_, Ignore_Table)
+            end
         end
-    else
-        self.dropdownBg.Visible = false
     end
 end
 
-function MultiSelect:HandleClick(mx, my)
-    local buttonAbsPos = self.button.AbsolutePosition
-    local buttonAbsSize = self.button.AbsoluteSize
-    
-    if PointInRect(mx, my, buttonAbsPos.X, buttonAbsPos.Y, buttonAbsSize.X, buttonAbsSize.Y) then
-        self.isOpen = not self.isOpen
-        if self.isOpen and ActiveDropdown and ActiveDropdown ~= self then
-            ActiveDropdown.isOpen = false
-            ActiveDropdown:UpdateVisuals()
-        end
-        ActiveDropdown = self.isOpen and self or nil
-        
-        -- Position dropdown below button
-        if self.isOpen then
-            self.dropdownBg.Position = UDim2.new(0, buttonAbsPos.X, 0, buttonAbsPos.Y + buttonAbsSize.Y + 2)
-            self.dropdownBg.Size = UDim2.new(0, buttonAbsSize.X, 0, math.min(#self.dropdownElements * CONFIG.LAYOUT.DROPDOWN_ITEM_HEIGHT + 10, 200))
-        end
-        
-        self:UpdateVisuals()
-        return true
+function ESP:Check_Visible(Target, FromHead)
+    if self.Overrides.Check_Visible ~= nil then
+        return self.Overrides.Check_Visible(Player)
     end
-    
-    if self.isOpen then
-        local dropdownAbsPos = self.dropdownBg.AbsolutePosition
-        local dropdownAbsSize = self.dropdownBg.AbsoluteSize
-        
-        if PointInRect(mx, my, dropdownAbsPos.X, dropdownAbsPos.Y, dropdownAbsSize.X, dropdownAbsSize.Y) then
-            for i, elem in ipairs(self.dropdownElements) do
-                local itemAbsPos = elem.frame.AbsolutePosition
-                local itemAbsSize = elem.frame.AbsoluteSize
-                
-                if PointInRect(mx, my, itemAbsPos.X, itemAbsPos.Y, itemAbsSize.X, itemAbsSize.Y) then
-                    elem.selected = not elem.selected
-                    
-                    if not self.option.Values then
-                        self.option.Values = {}
+    local Character = LocalPlayer.Character
+    if not Character then return false end
+    local Head = Character:FindFirstChild("Head")
+    if not Head then return false end
+    local RaycastParams_ = RaycastParams.new();
+    RaycastParams_.FilterType = Enum.RaycastFilterType.Blacklist;
+    local Ignore_Table = {Camera, LocalPlayer.Character}
+    RaycastParams_.FilterDescendantsInstances = Ignore_Table;
+    RaycastParams_.IgnoreWater = true;
+    local From = FromHead and Head.Position or Camera.CFrame.p
+    local Result = Workspace:Raycast(From, (Target.Position - From).unit * 10000, RaycastParams_)
+    Passed = false
+    if Result then
+        local Instance_ = Result.Instance
+        if Instance_:IsDescendantOf(Target.Parent) then
+            return true
+        elseif ESP.Settings.Improved_Visible_Check and Instance_.CanCollide == false or Instance_.Transparency == 1 then
+            if Instance_.Name ~= "Head" and Instance_.Name ~= "HumanoidRootPart" then
+                table.insert(Ignore_Table, Instance_)
+                Pass_Through(Result.Position, Target, RaycastParams_, Ignore_Table)
+            end
+        end
+    end
+    return Passed
+end
+
+local Player_Metatable = {}
+do -- Player Metatable
+    Player_Metatable.__index = Player_Metatable
+    function Player_Metatable:Destroy()
+        for Index, Component in pairs(self.Components) do
+            if tostring(Index) == "Chams" then
+                if _G.chamsEnabled == true then
+                    Component:Destroy()
+                end
+                self.Components[Index] = nil
+                continue
+            end
+            Component.Visible = false
+            Component:Remove()
+            self.Components[Index] = nil
+        end
+        ESP.Objects[self.Player] = nil
+    end
+    function Player_Metatable:Update()
+        local Box, Box_Outline = self.Components.Box, self.Components.Box_Outline
+        local Healthbar, Healthbar_Outline = self.Components.Healthbar, self.Components.Healthbar_Outline
+        local Name, NameBold = self.Components.Name, self.Components.NameBold
+        local Distance, DistanceBold = self.Components.Distance, self.Components.DistanceBold
+        local Tool, ToolBold = self.Components.Tool, self.Components.ToolBold
+        local Health, HealthBold = self.Components.Health, self.Components.HealthBold
+        local Chams = _G.chamsEnabled == true and self.Components.Chams or true
+        local Image = self.Components.Image
+        if Box == nil or Box_Outline == nil or Healthbar == nil or Healthbar_Outline == nil or Name == nil or NameBold == nil or Distance == nil or DistanceBold == nil or Tool == nil or ToolBold == nil or Health == nil or HealthBold == nil or Chams == nil then
+            self:Destroy()
+        end
+        local Character = ESP:Get_Character(self.Player)
+        if Character ~= nil then
+            local Head, HumanoidRootPart, Humanoid = Character:FindFirstChild("Head"), Character:FindFirstChild("HumanoidRootPart"), Character:FindFirstChildOfClass("Humanoid")
+            if not Humanoid then
+                Box.Visible = false
+                Box_Outline.Visible = false
+                Healthbar.Visible = false
+                Healthbar_Outline.Visible = false
+                Name.Visible = false
+                NameBold.Visible = false
+                Distance.Visible = false
+                DistanceBold.Visible = false
+                Tool.Visible = false
+                ToolBold.Visible = false
+                Health.Visible = false
+                HealthBold.Visible = false
+                if _G.chamsEnabled == true then
+                    Chams.Enabled = false
+                end
+                Image.Visible = false
+                return
+            end
+            local Current_Health, Health_Maximum = ESP:Get_Health(self.Player), Humanoid.MaxHealth
+            if Head and HumanoidRootPart and Current_Health > 0 then
+                local Dimensions = Framework:Get_Bounding_Vectors(HumanoidRootPart)
+                local HRP_Position, On_Screen = Camera:WorldToViewportPoint(HumanoidRootPart.Position)
+                local Stud_Distance, Meter_Distance = math.floor(HRP_Position.Z + 0.5), math.floor(HRP_Position.Z / 3.5714285714 + 0.5)
+
+                local Y_Minimal, Y_Maximal = Camera.ViewportSize.X, 0
+                local X_Minimal, X_Maximal = Camera.ViewportSize.X, 0
+
+                for _, CF in pairs(Dimensions) do
+                    local Vector = Camera:WorldToViewportPoint(CF.Position)
+                    local X, Y = Vector.X, Vector.Y
+                    if X < X_Minimal then 
+                        X_Minimal = X
                     end
-                    
-                    if elem.selected then
-                        table.insert(self.option.Values, elem.name)
-                    else
-                        for j, v in ipairs(self.option.Values) do
-                            if v == elem.name then
-                                table.remove(self.option.Values, j)
-                                break
-                            end
+                    if X > X_Maximal then 
+                        X_Maximal = X
+                    end
+                    if Y < Y_Minimal then 
+                        Y_Minimal = Y
+                    end
+                    if Y > Y_Maximal then
+                        Y_Maximal = Y
+                    end
+                end
+
+                local Box_Size = Framework:Round_V2(Vector2.new(X_Minimal - X_Maximal, Y_Minimal - Y_Maximal))
+                local Box_Position = Framework:Round_V2(Vector2.new(X_Maximal + Box_Size.X / X_Minimal, Y_Maximal + Box_Size.Y / Y_Minimal))
+                local Good = false
+
+                if ESP.Settings.Team_Check then
+                    if ESP:Get_Team(self.Player) ~= ESP:Get_Team(LocalPlayer) then
+                        Good = true
+                    end
+                else
+                    Good = true
+                end
+
+                if ESP.Settings.Enabled and On_Screen and Meter_Distance < ESP.Settings.Maximal_Distance and Good then
+                    local Highlight_Settings = ESP.Settings.Highlight
+                    local Is_Highlighted = Highlight_Settings.Enabled and Highlight_Settings.Target == Character or false
+                    local Highlight_Color = Highlight_Settings.Color
+
+                    -- Offsets
+                    local Top_Offset = 3
+                    local Bottom_Offset = Y_Maximal + 1
+                    local Left_Offset = 0
+                    local Right_Offset = 0
+
+                    -- Box
+                    local Box_Settings = ESP.Settings.Box
+                    Box.Size = Box_Size
+                    Box.Position = Box_Position
+                    Box.Color = Is_Highlighted and Highlight_Color or Box_Settings.Color
+                    Box.Transparency = Framework:Drawing_Transparency(Box_Settings.Transparency)
+                    Box.Visible = Box_Settings.Enabled
+
+                    local Box_Outline_Settings = ESP.Settings.Box_Outline
+                    Box_Outline.Size = Box_Size
+                    Box_Outline.Position = Box_Position
+                    Box_Outline.Color = Box_Outline_Settings.Color
+                    Box_Outline.Thickness = Box_Outline_Settings.Outline_Size + 2
+                    Box_Outline.Transparency = Framework:Drawing_Transparency(Box_Outline_Settings.Transparency)
+                    Box_Outline.Visible = Box_Settings.Enabled and Box_Outline_Settings.Enabled or false
+
+                    local Image_Settings = ESP.Settings.Image
+                    local Image_Enabled = Image_Settings.Enabled
+                    if Image_Enabled then
+                        Image.Size = -Box_Size
+                        Image.Position = Box_Position + Box_Size
+                    end
+                    Image.Visible = Image_Enabled
+
+                    -- Healthbar
+                    local Health_Top_Size_Outline = Vector2.new(Box_Size.X - 4, 3)
+                    local Health_Top_Pos_Outline = Box_Position + Vector2.new(2, Box_Size.Y - 6)
+                    local Health_Top_Size_Fill = Vector2.new((Current_Health * Health_Top_Size_Outline.X / Health_Maximum) + 2, 1)
+                    local Health_Top_Pos_Fill = Health_Top_Pos_Outline + Vector2.new(1 + -(Health_Top_Size_Fill.X - Health_Top_Size_Outline.X),1);
+
+                    local Health_Left_Size_Outline = Vector2.new(3, Box_Size.Y - 4)
+                    local Health_Left_Pos_Outline = Vector2.new(X_Maximal + Box_Size.X - 6, Box_Position.Y + 2)
+                    local Health_Left_Size_Fill = Vector2.new(1, (Current_Health * Health_Left_Size_Outline.Y / Health_Maximum) + 2)
+                    local Health_Left_Pos_Fill = Health_Left_Pos_Outline + Vector2.new(1,-1 + -(Health_Left_Size_Fill.Y - Health_Left_Size_Fill.Y));
+
+                    local Healthbar_Settings = ESP.Settings.Healthbar
+                    local Healthbar_Enabled = Healthbar_Settings.Enabled
+                    local Healthbar_Position = Healthbar_Settings.Position
+                    local Health_Lerp_Color = Healthbar_Settings.Color:Lerp(Healthbar_Settings.Color_Lerp, Current_Health / Health_Maximum)
+                    if Healthbar_Enabled then
+                        if Healthbar_Position == "Left" then
+                            Healthbar.Size = Health_Left_Size_Fill;
+                            Healthbar.Position = Health_Left_Pos_Fill;
+                            Healthbar_Outline.Size = Health_Left_Size_Outline;
+                            Healthbar_Outline.Position = Health_Left_Pos_Outline;
+                        elseif Healthbar_Position == "Right" then
+                            Healthbar.Size = Health_Left_Size_Fill;
+                            Healthbar.Position = Vector2.new(X_Maximal + Box_Size.X + 4, Box_Position.Y + 1) - Vector2.new(Box_Size.X, 0)
+                            Healthbar_Outline.Size = Health_Left_Size_Outline
+                            Healthbar_Outline.Position = Vector2.new(X_Maximal + Box_Size.X + 3, Box_Position.Y + 2) - Vector2.new(Box_Size.X, 0)
+                        elseif Healthbar_Position == "Top" then
+                            Healthbar.Size = Health_Top_Size_Fill;
+                            Healthbar.Position = Health_Top_Pos_Fill;
+                            Healthbar_Outline.Size = Health_Top_Size_Outline;
+                            Healthbar_Outline.Position = Health_Top_Pos_Outline;
+                            Top_Offset = Top_Offset + 6
+                        elseif Healthbar_Position == "Bottom" then
+                            Healthbar.Size = Health_Top_Size_Fill
+                            Healthbar.Position = Health_Top_Pos_Fill - Vector2.new(0, Box_Size.Y - 9)
+                            Healthbar_Outline.Size = Health_Top_Size_Outline;
+                            Healthbar_Outline.Position = Health_Top_Pos_Outline - Vector2.new(0, Box_Size.Y - 9)
+                            Bottom_Offset = Bottom_Offset + 6
+                        end
+                        Healthbar.Color = Health_Lerp_Color
+                    end
+                    Healthbar.Visible = Healthbar_Enabled
+                    Healthbar_Outline.Visible = Healthbar_Enabled
+
+                    -- Name
+                    local Name_Settings = ESP.Settings.Name
+                    local Name_Position = Name_Settings.Position
+                    if Name_Position == "Top" then 
+                        Name.Position = Vector2.new(X_Maximal + Box_Size.X / 2, Box_Position.Y) - Vector2.new(0, Name.TextBounds.Y - Box_Size.Y + Top_Offset) 
+                        Top_Offset = Top_Offset + 10
+                    elseif Name_Position == "Bottom" then
+                        Name.Position = Vector2.new(Box_Size.X / 2 + Box_Position.X, Bottom_Offset) 
+                        Bottom_Offset = Bottom_Offset + 10
+                    elseif Name_Position == "Left" then
+                        if Healthbar_Position == "Left" then
+                            Name.Position = Health_Left_Pos_Outline - Vector2.new(Name.TextBounds.X/2 - 2 + 4, -(100 * Health_Left_Size_Outline.Y / 100) + 2 - Left_Offset)
+                        else
+                            Name.Position = Health_Left_Pos_Outline - Vector2.new(Name.TextBounds.X/2 - 2, -(100 * Health_Left_Size_Outline.Y / 100) + 2 - Left_Offset)
+                        end
+                        Left_Offset = Left_Offset + 10
+                    elseif Name_Position == "Right" then
+                        if Healthbar_Position == "Right" then
+                            Name.Position = Vector2.new(X_Maximal + Box_Size.X + 4 + 4 + Name.TextBounds.X / 2, Box_Position.Y + 2) - Vector2.new(Box_Size.X, -(100 * Health_Left_Size_Outline.Y / 100) + 2 - Right_Offset)
+                        else
+                            Name.Position = Vector2.new(X_Maximal + Box_Size.X + 3 + Name.TextBounds.X / 2, Box_Position.Y + 2) - Vector2.new(Box_Size.X, -(100 * Health_Left_Size_Outline.Y / 100) + 2 - Right_Offset)
+                        end
+                        Right_Offset = Right_Offset + 10
+                    end
+                    Name.Color = Is_Highlighted and Highlight_Color or Name_Settings.Color
+                    Name.OutlineColor = Name_Settings.OutlineColor
+                    Name.Transparency = Framework:Drawing_Transparency(Name_Settings.Transparency)
+                    Name.Visible = Name_Settings.Enabled
+                    NameBold.Color = Is_Highlighted and Highlight_Color or Name_Settings.Color
+                    NameBold.OutlineColor = Name_Settings.OutlineColor
+                    NameBold.Transparency = Framework:Drawing_Transparency(Name_Settings.Transparency)
+                    NameBold.Position = Name.Position + Vector2.new(1, 0)
+                    NameBold.Visible = Name.Visible and ESP.Settings.Bold_Text
+
+                    -- Distance
+                    local Distance_Settings = ESP.Settings.Distance
+                    local Distance_Position = Distance_Settings.Position
+                    if Distance_Position == "Top" then 
+                        Distance.Position = Vector2.new(X_Maximal + Box_Size.X / 2, Box_Position.Y) - Vector2.new(0, Distance.TextBounds.Y - Box_Size.Y + Top_Offset) 
+                        Top_Offset = Top_Offset + 10
+                    elseif Distance_Position == "Bottom" then
+                        Distance.Position = Vector2.new(Box_Size.X / 2 + Box_Position.X, Bottom_Offset) 
+                        Bottom_Offset = Bottom_Offset + 10
+                    elseif Distance_Position == "Left" then
+                        if Healthbar_Position == "Left" then
+                            Distance.Position = Health_Left_Pos_Outline - Vector2.new(Distance.TextBounds.X/2 - 2 + 4, -(100 * Health_Left_Size_Outline.Y / 100) + 2 - Left_Offset)
+                        else
+                            Distance.Position = Health_Left_Pos_Outline - Vector2.new(Distance.TextBounds.X/2 - 2, -(100 * Health_Left_Size_Outline.Y / 100) + 2 - Left_Offset)
+                        end
+                        Left_Offset = Left_Offset + 10
+                    elseif Distance_Position == "Right" then
+                        if Healthbar_Position == "Right" then
+                            Distance.Position = Vector2.new(X_Maximal + Box_Size.X + 4 + 4 + Distance.TextBounds.X / 2, Box_Position.Y + 2) - Vector2.new(Box_Size.X, -(100 * Health_Left_Size_Outline.Y / 100) + 2 - Right_Offset)
+                        else
+                            Distance.Position = Vector2.new(X_Maximal + Box_Size.X + 3 + Distance.TextBounds.X / 2, Box_Position.Y + 2) - Vector2.new(Box_Size.X, -(100 * Health_Left_Size_Outline.Y / 100) + 2 - Right_Offset)
+                        end
+                        Right_Offset = Right_Offset + 10
+                    end
+                    Distance.Text = Meter_Distance.."m"
+                    Distance.Color = Is_Highlighted and Highlight_Color or Distance_Settings.Color
+                    Distance.OutlineColor = Distance_Settings.OutlineColor
+                    Distance.Transparency = Framework:Drawing_Transparency(Distance_Settings.Transparency)
+                    Distance.Visible = Distance_Settings.Enabled
+                    DistanceBold.Text = Meter_Distance.."m"
+                    DistanceBold.Color = Is_Highlighted and Highlight_Color or Distance_Settings.Color
+                    DistanceBold.OutlineColor = Distance_Settings.OutlineColor
+                    DistanceBold.Transparency = Framework:Drawing_Transparency(Distance_Settings.Transparency)
+                    DistanceBold.Position = Distance.Position + Vector2.new(1, 0)
+                    DistanceBold.Visible = Distance.Visible and ESP.Settings.Bold_Text
+
+                    -- Tool
+                    local Tool_Settings = ESP.Settings.Tool
+                    local Tool_Position = Tool_Settings.Position
+                    if Tool_Position == "Top" then 
+                        Tool.Position = Vector2.new(X_Maximal + Box_Size.X / 2, Box_Position.Y) - Vector2.new(0, Tool.TextBounds.Y - Box_Size.Y + Top_Offset) 
+                        Top_Offset = Top_Offset + 10
+                    elseif Tool_Position == "Bottom" then
+                        Tool.Position = Vector2.new(Box_Size.X / 2 + Box_Position.X, Bottom_Offset) 
+                        Bottom_Offset = Bottom_Offset + 10
+                    elseif Tool_Position == "Left" then
+                        if Healthbar_Position == "Left" then
+                            Tool.Position = Health_Left_Pos_Outline - Vector2.new(Tool.TextBounds.X/2 - 2 + 4, -(100 * Health_Left_Size_Outline.Y / 100) + 2 - Left_Offset)
+                        else
+                            Tool.Position = Health_Left_Pos_Outline - Vector2.new(Tool.TextBounds.X/2 - 2, -(100 * Health_Left_Size_Outline.Y / 100) + 2 - Left_Offset)
+                        end
+                        Left_Offset = Left_Offset + 10
+                    elseif Tool_Position == "Right" then
+                        if Healthbar_Position == "Right" then
+                            Tool.Position = Vector2.new(X_Maximal + Box_Size.X + 4 + 4 + Tool.TextBounds.X / 2, Box_Position.Y + 2) - Vector2.new(Box_Size.X, -(100 * Health_Left_Size_Outline.Y / 100) + 2 - Right_Offset)
+                        else
+                            Tool.Position = Vector2.new(X_Maximal + Box_Size.X + 3 + Tool.TextBounds.X / 2, Box_Position.Y + 2) - Vector2.new(Box_Size.X, -(100 * Health_Left_Size_Outline.Y / 100) + 2 - Right_Offset)
+                        end
+                        Right_Offset = Right_Offset + 10
+                    end
+                    Tool.Text = ESP:Get_Tool(self.Player)
+                    Tool.Color = Is_Highlighted and Highlight_Color or Tool_Settings.Color
+                    Tool.OutlineColor = Tool_Settings.OutlineColor
+                    Tool.Transparency = Framework:Drawing_Transparency(Tool_Settings.Transparency)
+                    Tool.Visible = Tool_Settings.Enabled
+                    ToolBold.Text = ESP:Get_Tool(self.Player)
+                    ToolBold.Color = Is_Highlighted and Highlight_Color or Tool_Settings.Color
+                    ToolBold.OutlineColor = Tool_Settings.OutlineColor
+                    ToolBold.Transparency = Framework:Drawing_Transparency(Tool_Settings.Transparency)
+                    ToolBold.Position = Tool.Position + Vector2.new(1, 0)
+                    ToolBold.Visible = Tool.Visible and ESP.Settings.Bold_Text
+
+                    -- Health
+                    local Health_Settings = ESP.Settings.Health
+                    local Health_Position = Health_Settings.Position
+                    if Health_Position == "Top" then 
+                        Health.Position = Vector2.new(X_Maximal + Box_Size.X / 2, Box_Position.Y) - Vector2.new(0, Health.TextBounds.Y - Box_Size.Y + Top_Offset) 
+                        Top_Offset = Top_Offset + 10
+                    elseif Health_Position == "Bottom" then
+                        Health.Position = Vector2.new(Box_Size.X / 2 + Box_Position.X, Bottom_Offset) 
+                        Bottom_Offset = Bottom_Offset + 10
+                    elseif Health_Position == "Left" then
+                        if Healthbar_Position == "Left" then
+                            Health.Position = Health_Left_Pos_Outline - Vector2.new(Health.TextBounds.X/2 - 2 + 4, -(100 * Health_Left_Size_Outline.Y / 100) + 2 - Left_Offset)
+                        else
+                            Health.Position = Health_Left_Pos_Outline - Vector2.new(Health.TextBounds.X/2 - 2, -(100 * Health_Left_Size_Outline.Y / 100) + 2 - Left_Offset)
+                        end
+                        Left_Offset = Left_Offset + 10
+                    elseif Health_Position == "Right" then
+                        if Healthbar_Position == "Right" then
+                            Health.Position = Vector2.new(X_Maximal + Box_Size.X + 4 + 4 + Health.TextBounds.X / 2, Box_Position.Y + 2) - Vector2.new(Box_Size.X, -(100 * Health_Left_Size_Outline.Y / 100) + 2 - Right_Offset)
+                        else
+                            Health.Position = Vector2.new(X_Maximal + Box_Size.X + 3 + Health.TextBounds.X / 2, Box_Position.Y + 2) - Vector2.new(Box_Size.X, -(100 * Health_Left_Size_Outline.Y / 100) + 2 - Right_Offset)
+                        end
+                        Right_Offset = Right_Offset + 10
+                    end
+                    Health.Text = tostring(math.floor(Current_Health + 0.5))
+                    Health.Color = Health_Lerp_Color
+                    Health.OutlineColor = Health_Settings.OutlineColor
+                    Health.Transparency = Framework:Drawing_Transparency(Health_Settings.Transparency)
+                    Health.Visible = Health_Settings.Enabled
+                    HealthBold.Text = tostring(math.floor(Current_Health + 0.5))
+                    HealthBold.Color = Health_Lerp_Color
+                    HealthBold.OutlineColor = Health_Settings.OutlineColor
+                    HealthBold.Transparency = Framework:Drawing_Transparency(Health_Settings.Transparency)
+                    HealthBold.Position = Health.Position + Vector2.new(1, 0)
+                    HealthBold.Visible = Health.Visible and ESP.Settings.Bold_Text
+
+                    -- Chams
+                    if _G.chamsEnabled == true then
+                        local Chams_Settings = ESP.Settings.Chams
+                        local Is_Visible = false
+                        if ESP:Check_Visible(Head) or ESP:Check_Visible(HumanoidRootPart) then
+                            Is_Visible = true
+                        end
+                        local Chams_Enabled = Chams_Settings.Enabled
+                        Chams.Enabled = Chams_Enabled
+                        Chams.Adornee = Chams_Enabled and Character or nil
+                        if Chams_Enabled then
+                            Chams.FillColor = Chams_Settings.Mode == "Visible" and Is_Visible and Color3.new(0, 1, 0) or Chams_Settings.Color
+                            Chams.OutlineColor = Chams_Settings.OutlineColor
+                            Chams.FillTransparency = Chams_Settings.Transparency
+                            Chams.OutlineTransparency = Chams_Settings.OutlineTransparency
                         end
                     end
-                    
-                    if self.option.Callback then
-                        self.option.Callback(self.option.Values)
-                    end
-                    
-                    self:UpdateVisuals()
-                    return true
-                end
-            end
-        else
-            self.isOpen = false
-            ActiveDropdown = nil
-            self:UpdateVisuals()
-        end
-    end
-    
-    return false
-end
-
-function MultiSelect:SetVisible(visible)
-    self.container.Visible = visible
-    if not visible then
-        self.dropdownBg.Visible = false
-    end
-end
-
--- Section Component
-local Section = {}
-Section.__index = Section
-
-function Section.new(data, accentColor, parent)
-    local self = setmetatable({}, Section)
-    self.data = data
-    self.accentColor = accentColor
-    
-    self.container = CreateFrame(parent, {
-        BackgroundColor3 = CONFIG.COLORS.BLOCK_BG,
-        BackgroundTransparency = 1 - CONFIG.OPACITY.BLOCK,
-        ClipsDescendants = true
-    })
-    CreateUICorner(self.container, 8)
-    CreateUIStroke(self.container, {Color = Color3.fromRGB(50, 50, 50), Thickness = 1})
-    
-    self.title = CreateTextLabel(self.container, {
-        Size = UDim2.new(1, -CONFIG.LAYOUT.BLOCK_PADDING * 2, 0, CONFIG.TEXT_SIZE.BLOCK_TITLE),
-        Position = UDim2.new(0, CONFIG.LAYOUT.BLOCK_PADDING, 0, CONFIG.LAYOUT.BLOCK_PADDING),
-        Text = data.Name,
-        TextSize = CONFIG.TEXT_SIZE.BLOCK_TITLE,
-        TextColor3 = CONFIG.COLORS.TEXT_DEFAULT,
-        BackgroundTransparency = 1,
-        TextXAlignment = Enum.TextXAlignment.Left,
-        Font = Enum.Font.GothamBold,
-        TextYAlignment = Enum.TextYAlignment.Center
-    })
-    
-    self.components = {}
-    
-    return self
-end
-
-function Section:Toggle(options)
-    local option = {
-        Name = options.Name or "Toggle",
-        Value = options.Default or false,
-        Callback = options.Callback
-    }
-    
-    local toggle = Toggle.new(option, self.accentColor, self.container)
-    table.insert(self.components, toggle)
-    
-    return {
-        SetValue = function(value)
-            option.Value = value
-            toggle:UpdateVisuals()
-            if option.Callback then
-                option.Callback(value)
-            end
-        end,
-        GetValue = function()
-            return option.Value
-        end
-    }
-end
-
-function Section:Slider(options)
-    local option = {
-        Name = options.Name or "Slider",
-        Min = options.Min or 0,
-        Max = options.Max or 100,
-        Value = options.Default or 50,
-        Callback = options.Callback
-    }
-    
-    local slider = Slider.new(option, self.accentColor, self.container)
-    table.insert(self.components, slider)
-    
-    return {
-        SetValue = function(value)
-            option.Value = Clamp(value, option.Min, option.Max)
-            slider:UpdateVisuals()
-            if option.Callback then
-                option.Callback(option.Value)
-            end
-        end,
-        GetValue = function()
-            return option.Value
-        end
-    }
-end
-
-function Section:MultiSelect(options)
-    local option = {
-        Name = options.Name or "Multi Select",
-        Options = options.Options or {},
-        Values = {},
-        Callback = options.Callback
-    }
-    
-    local multiselect = MultiSelect.new(option, self.accentColor, self.container)
-    table.insert(self.components, multiselect)
-    
-    return {
-        GetSelected = function()
-            return option.Values
-        end,
-        SetSelected = function(values)
-            option.Values = values or {}
-            for _, elem in ipairs(multiselect.dropdownElements) do
-                elem.selected = false
-                for _, v in ipairs(option.Values) do
-                    if elem.name == v then
-                        elem.selected = true
-                        break
-                    end
-                end
-            end
-            multiselect:UpdateVisuals()
-            if option.Callback then
-                option.Callback(option.Values)
-            end
-        end
-    }
-end
-
-function Section:CalculateHeight()
-    local height = CONFIG.LAYOUT.BLOCK_PADDING * 2 + CONFIG.TEXT_SIZE.BLOCK_TITLE + 10
-    for _, component in ipairs(self.components) do
-        height = height + CONFIG.LAYOUT.OPTION_HEIGHT + CONFIG.LAYOUT.OPTION_SPACING
-    end
-    return height
-end
-
-function Section:UpdateBlock(x, y, width)
-    self.container.Position = UDim2.new(0, x, 0, y)
-    local height = self:CalculateHeight()
-    self.container.Size = UDim2.new(0, width, 0, height)
-    
-    local optionY = CONFIG.LAYOUT.BLOCK_PADDING + CONFIG.TEXT_SIZE.BLOCK_TITLE + 15
-    for _, component in ipairs(self.components) do
-        component.container.Position = UDim2.new(0, CONFIG.LAYOUT.BLOCK_PADDING, 0, optionY)
-        optionY = optionY + CONFIG.LAYOUT.OPTION_HEIGHT + CONFIG.LAYOUT.OPTION_SPACING
-    end
-    
-    return height
-end
-
-function Section:SetVisible(visible, clipY, clipHeight)
-    if not visible or not GUI_Initialized then
-        self.container.Visible = false
-        for _, component in ipairs(self.components) do
-            component:SetVisible(false)
-        end
-        return
-    end
-    
-    local blockY = self.container.AbsolutePosition.Y
-    local blockHeight = self.container.AbsoluteSize.Y
-    local blockBottom = blockY + blockHeight
-    local clipBottom = clipY + clipHeight
-    
-    if blockBottom < clipY or blockY > clipBottom then
-        self.container.Visible = false
-        for _, component in ipairs(self.components) do
-            component:SetVisible(false)
-        end
-        return
-    end
-    
-    self.container.Visible = GUI_Visible and GUI_Initialized
-    
-    for _, component in ipairs(self.components) do
-        component:SetVisible(true)
-    end
-end
-
--- Tab Component
-local Tab = {}
-Tab.__index = Tab
-
-function Tab.new(name, accentColor, parent)
-    local self = setmetatable({}, Tab)
-    self.name = name
-    self.accentColor = accentColor
-    self.sections = {}
-    self.isActive = false
-    
-    return self
-end
-
-function Tab:Section(options)
-    local section = Section.new(options, self.accentColor, ScreenGui)
-    table.insert(self.sections, section)
-    return section
-end
-
--- Main Library
-function Library:Create(options)
-    local self = setmetatable({}, Library)
-    
-    self.Name = options.Name or "My UI"
-    self.AccentColor = options.AccentColor or CONFIG.COLORS.TOGGLE_ON
-    self.ToggleKey = options.ToggleKey or CONFIG.TOGGLE_KEY
-    
-    -- Update config with custom colors
-    CONFIG.COLORS.TOGGLE_ON = self.AccentColor
-    CONFIG.COLORS.SLIDER_FILL = self.AccentColor
-    CONFIG.COLORS.ACTIVE_TAB = self.AccentColor
-    CONFIG.COLORS.SCROLLBAR_THUMB = self.AccentColor
-    CONFIG.COLORS.CHECKBOX_ON = self.AccentColor
-    CONFIG.TOGGLE_KEY = self.ToggleKey
-    
-    -- Create ScreenGui
-    ScreenGui = Instance.new("ScreenGui")
-    ScreenGui.Name = "UILibrary"
-    ScreenGui.ResetOnSpawn = false
-    ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
-    ScreenGui.Parent = Player:WaitForChild("PlayerGui")
-    
-    self.tabs = {}
-    self.tabButtons = {}
-    self.activeTab = nil
-    
-    -- Create main panels with rounded corners
-    self.leftPanel = CreateFrame(ScreenGui, {
-        Position = UDim2.new(0, Panel.x, 0, Panel.y),
-        Size = UDim2.new(0, CONFIG.GUI.LEFT_WIDTH, 0, CONFIG.GUI.HEIGHT),
-        BackgroundColor3 = CONFIG.COLORS.LEFT_PANEL,
-        BackgroundTransparency = 1 - CONFIG.OPACITY.LEFT
-    })
-    CreateUICorner(self.leftPanel, 10)
-    CreateUIStroke(self.leftPanel, {Color = Color3.fromRGB(40, 40, 40), Thickness = 1})
-    
-    self.rightPanel = CreateFrame(ScreenGui, {
-        Position = UDim2.new(0, Panel.x + CONFIG.GUI.LEFT_WIDTH, 0, Panel.y),
-        Size = UDim2.new(0, CONFIG.GUI.WIDTH - CONFIG.GUI.LEFT_WIDTH, 0, CONFIG.GUI.HEIGHT),
-        BackgroundColor3 = CONFIG.COLORS.RIGHT_PANEL,
-        BackgroundTransparency = 1 - CONFIG.OPACITY.RIGHT,
-        ClipsDescendants = true
-    })
-    CreateUICorner(self.rightPanel, 10)
-    CreateUIStroke(self.rightPanel, {Color = Color3.fromRGB(40, 40, 40), Thickness = 1})
-    
-    self.nickBlock = CreateFrame(self.leftPanel, {
-        Position = UDim2.new(0, 0, 1, -CONFIG.LAYOUT.NICK_HEIGHT),
-        Size = UDim2.new(1, 0, 0, CONFIG.LAYOUT.NICK_HEIGHT),
-        BackgroundColor3 = CONFIG.COLORS.NICK_BLOCK,
-        BackgroundTransparency = 1 - CONFIG.OPACITY.NICK_BLOCK
-    })
-    CreateUICorner(self.nickBlock, 0, 0, 10, 10)
-    
-    self.nickCircle = CreateFrame(self.nickBlock, {
-        Size = UDim2.new(0, CONFIG.LAYOUT.AVATAR_SIZE, 0, CONFIG.LAYOUT.AVATAR_SIZE),
-        Position = UDim2.new(0, 10, 0.5, -CONFIG.LAYOUT.AVATAR_SIZE/2),
-        BackgroundColor3 = CONFIG.COLORS.NICK_CIRCLE,
-        BackgroundTransparency = 0
-    })
-    CreateUICorner(self.nickCircle, CONFIG.LAYOUT.AVATAR_SIZE/2)
-    
-    -- Load avatar
-    local userId = Player.UserId
-    local thumbType = Enum.ThumbnailType.HeadShot
-    local thumbSize = Enum.ThumbnailSize.Size100x100
-    
-    pcall(function()
-        local content, isReady = Players:GetUserThumbnailAsync(userId, thumbType, thumbSize)
-        if content then
-            self.avatarImage = CreateImageLabel(self.nickCircle, {
-                Size = UDim2.new(1, 0, 1, 0),
-                BackgroundTransparency = 1,
-                Image = content
-            })
-            CreateUICorner(self.avatarImage, CONFIG.LAYOUT.AVATAR_SIZE/2)
-        end
-    end)
-    
-    self.nickText = CreateTextLabel(self.nickBlock, {
-        Size = UDim2.new(1, -60, 1, 0),
-        Position = UDim2.new(0, 50, 0, 0),
-        Text = Player.DisplayName,
-        TextSize = CONFIG.TEXT_SIZE.NICK,
-        TextColor3 = CONFIG.COLORS.TEXT_DEFAULT,
-        BackgroundTransparency = 1,
-        TextXAlignment = Enum.TextXAlignment.Left,
-        Font = Enum.Font.GothamBold,
-        TextYAlignment = Enum.TextYAlignment.Center
-    })
-    
-    self.title = CreateTextLabel(self.leftPanel, {
-        Size = UDim2.new(1, 0, 0, 40),
-        Position = UDim2.new(0, 0, 0, 20),
-        Text = self.Name,
-        TextSize = CONFIG.TEXT_SIZE.TITLE,
-        TextColor3 = CONFIG.COLORS.TEXT_DEFAULT,
-        BackgroundTransparency = 1,
-        TextXAlignment = Enum.TextXAlignment.Center,
-        Font = Enum.Font.GothamBold,
-        TextYAlignment = Enum.TextYAlignment.Center
-    })
-    
-    self.dragging = false
-    self.dragOffset = {x = 0, y = 0}
-    self.wasLeftPressed = false
-    self.lastToggle = 0
-    
-    ScrollManager:Init(self.rightPanel)
-    
-    -- Auto show on execute
-    GUI_Initialized = true
-    GUI_Visible = true
-    self:SetVisible(true)
-    self:StartLoop()
-    
-    return self
-end
-
-function Library:Tab(options)
-    local tab = Tab.new(options.Name or "Tab", self.AccentColor, ScreenGui)
-    
-    local tabButton = {
-        name = tab.name,
-        tab = tab,
-        text = CreateTextLabel(self.leftPanel, {
-            Size = UDim2.new(1, -40, 0, 30),
-            Position = UDim2.new(0, CONFIG.LAYOUT.TEXT_OFFSET_X - 20, 0, 60 + (#self.tabButtons * CONFIG.LAYOUT.LINE_SPACING)),
-            Text = tab.name,
-            TextSize = CONFIG.TEXT_SIZE.BUTTON,
-            TextColor3 = CONFIG.COLORS.TEXT_DEFAULT,
-            BackgroundTransparency = 1,
-            TextXAlignment = Enum.TextXAlignment.Left,
-            Font = Enum.Font.Gotham,
-            TextYAlignment = Enum.TextYAlignment.Center
-        }),
-        box = CreateFrame(self.leftPanel, {
-            Size = UDim2.new(1, -20, 0, CONFIG.LAYOUT.LINE_SPACING - 10),
-            Position = UDim2.new(0, 10, 0, 55 + (#self.tabButtons * CONFIG.LAYOUT.LINE_SPACING)),
-            BackgroundTransparency = 1
-        })
-    }
-    
-    -- Add hover effect
-    tabButton.box.MouseEnter:Connect(function()
-        if not tabButton.tab.isActive then
-            tabButton.text.TextColor3 = self.AccentColor
-        end
-    end)
-    
-    tabButton.box.MouseLeave:Connect(function()
-        if not tabButton.tab.isActive then
-            tabButton.text.TextColor3 = CONFIG.COLORS.TEXT_DEFAULT
-        end
-    end)
-    
-    table.insert(self.tabButtons, tabButton)
-    table.insert(self.tabs, tab)
-    
-    if not self.activeTab then
-        self:SwitchTab(tab)
-    end
-    
-    return tab
-end
-
-function Library:SwitchTab(targetTab)
-    for _, tab in ipairs(self.tabs) do
-        tab.isActive = false
-    end
-    targetTab.isActive = true
-    self.activeTab = targetTab
-    ScrollManager.offset = 0
-    
-    -- Update tab button colors
-    for _, tabButton in ipairs(self.tabButtons) do
-        tabButton.text.TextColor3 = tabButton.tab.isActive and self.AccentColor or CONFIG.COLORS.TEXT_DEFAULT
-    end
-end
-
-function Library:SetVisible(visible)
-    GUI_Visible = visible
-    if ScreenGui then
-        ScreenGui.Enabled = visible
-    end
-end
-
-function Library:UpdateBlocks()
-    if not GUI_Initialized then return end
-    
-    local rightX = Panel.x + CONFIG.GUI.LEFT_WIDTH
-    local rightY = Panel.y
-    local rightWidth = CONFIG.GUI.WIDTH - CONFIG.GUI.LEFT_WIDTH
-    local rightHeight = CONFIG.GUI.HEIGHT
-    local blockWidth = (rightWidth - CONFIG.LAYOUT.BLOCK_SPACING * 3 - CONFIG.LAYOUT.SCROLLBAR_WIDTH - 10) / 2
-    
-    for _, tab in ipairs(self.tabs) do
-        if tab.isActive then
-            local col1Y = rightY + CONFIG.LAYOUT.BLOCK_SPACING - ScrollManager.offset
-            local col2Y = rightY + CONFIG.LAYOUT.BLOCK_SPACING - ScrollManager.offset
-            local maxHeight = 0
-            
-            for i, section in ipairs(tab.sections) do
-                local col = ((i - 1) % 2) + 1
-                local x = col == 1 and (rightX + CONFIG.LAYOUT.BLOCK_SPACING) or (rightX + blockWidth + CONFIG.LAYOUT.BLOCK_SPACING * 2)
-                local y = col == 1 and col1Y or col2Y
-                
-                local height = section:UpdateBlock(x, y, blockWidth)
-                section:SetVisible(GUI_Visible, rightY, rightHeight)
-                
-                if col == 1 then
-                    col1Y = col1Y + height + CONFIG.LAYOUT.BLOCK_SPACING
-                    maxHeight = math.max(maxHeight, col1Y - rightY + ScrollManager.offset)
                 else
-                    col2Y = col2Y + height + CONFIG.LAYOUT.BLOCK_SPACING
-                    maxHeight = math.max(maxHeight, col2Y - rightY + ScrollManager.offset)
+                    Box.Visible = false
+                    Box_Outline.Visible = false
+                    Healthbar.Visible = false
+                    Healthbar_Outline.Visible = false
+                    Name.Visible = false
+                    NameBold.Visible = false
+                    Distance.Visible = false
+                    DistanceBold.Visible = false
+                    Tool.Visible = false
+                    ToolBold.Visible = false
+                    Health.Visible = false
+                    HealthBold.Visible = false
+                    if _G.chamsEnabled == true then
+                        Chams.Enabled = false
+                    end
+                    Image.Visible = false
+                    return
                 end
+            else
+                Box.Visible = false
+                Box_Outline.Visible = false
+                Healthbar.Visible = false
+                Healthbar_Outline.Visible = false
+                Name.Visible = false
+                NameBold.Visible = false
+                Distance.Visible = false
+                DistanceBold.Visible = false
+                Tool.Visible = false
+                ToolBold.Visible = false
+                Health.Visible = false
+                HealthBold.Visible = false
+                if _G.chamsEnabled == true then
+                    Chams.Enabled = false
+                end
+                Image.Visible = false
+                return
             end
-            
-            ScrollManager:UpdateMaxOffset(maxHeight, rightHeight)
         else
-            for _, section in ipairs(tab.sections) do
-                section:SetVisible(false, 0, 0)
+            Box.Visible = false
+            Box_Outline.Visible = false
+            Healthbar.Visible = false
+            Healthbar_Outline.Visible = false
+            Name.Visible = false
+            NameBold.Visible = false
+            Distance.Visible = false
+            DistanceBold.Visible = false
+            Tool.Visible = false
+            ToolBold.Visible = false
+            Health.Visible = false
+            HealthBold.Visible = false
+            if _G.chamsEnabled == true then
+                Chams.Enabled = false
             end
-        end
-    end
-    
-    ScrollManager:Update(rightX, rightY, rightWidth, rightHeight)
-end
-
-function Library:HandleClick(mx, my)
-    if ScrollManager:StartThumbDrag(mx, my) then return end
-    
-    for _, tabButton in ipairs(self.tabButtons) do
-        local absPos = tabButton.box.AbsolutePosition
-        local absSize = tabButton.box.AbsoluteSize
-        if PointInRect(mx, my, absPos.X, absPos.Y, absSize.X, absSize.Y) then
-            self:SwitchTab(tabButton.tab)
+            Image.Visible = false
             return
         end
     end
-    
-    if self.activeTab then
-        for _, section in ipairs(self.activeTab.sections) do
-            if not section.container.Visible then continue end
-            
-            for _, component in ipairs(section.components) do
-                if component.HandleClick and component:HandleClick(mx, my) then
-                    return
+end
+local Object_Metatable = {}
+do  -- Object Metatable
+    Object_Metatable.__index = Object_Metatable
+    function Object_Metatable:Destroy()
+        for Index, Component in pairs(self.Components) do
+            Component.Visible = false
+            Component:Remove()
+            self.Components[Index] = nil
+        end
+        ESP.Objects[self.Object] = nil
+    end
+    function Object_Metatable:Update()
+        local Name = self.Components.Name
+        local Addition = self.Components.Addition
+
+        if not ESP.Settings.Objects_Enabled then
+            Name.Visible = false
+            Addition.Visible = false
+            return
+        end
+
+        local Vector, On_Screen = Camera:WorldToViewportPoint(self.PrimaryPart.Position + Vector3.new(0, 1, 0))
+
+        local Meter_Distance = math.floor(Vector.Z / 3.5714285714 + 0.5)
+
+        if On_Screen and Meter_Distance < ESP.Settings.Object_Maximal_Distance then
+            -- Name
+            Name.Text = self.Name .. " [" .. math.floor(Vector.Z / 3.5714285714 + 0.5) .. "m]"
+            Name.Position = Framework:V3_To_V2(Vector)
+            Name.Visible = true
+
+            -- Addition
+            if self.Addition.Text ~= "" then
+                Addition.Position = Name.Position + Vector2.new(0, Name.TextBounds.Y)
+                Addition.Visible = true
+            else
+                Addition.Visible = false
+            end
+        else
+            Name.Visible = false
+            Addition.Visible = false
+            return
+        end
+    end
+end
+do -- ESP Functions
+    function ESP:Player(Instance, Data)
+        if Instance == nil then
+            return warn("error: function ESP.Player argument #1 expected Player, got nil")
+        end
+        if Data == nil or type(Data) ~= "table" then
+            Data = {
+                Player = Instance
+            }
+        end
+        local Object = setmetatable({
+            Player = Data.Player or Data.player or Data.Plr or Data.plr or Data.Ply or Data.ply or Instance,
+            Components = {},
+            Type = "Player"
+        }, Player_Metatable)
+        if self:GetObject(Instance) then
+            self:GetObject(Instance):Destroy()
+        end
+        local Components = Object.Components
+        Components.Box = Framework:Draw("Square", {Thickness = 1, ZIndex = 2})
+        Components.Box_Outline = Framework:Draw("Square", {Thickness = 3, ZIndex = 1})
+        Components.Healthbar = Framework:Draw("Square", {Thickness = 1, ZIndex = 2, Filled = true})
+        Components.Healthbar_Outline = Framework:Draw("Square", {Thickness = 3, ZIndex = 1, Filled = true})
+        Components.Name = Framework:Draw("Text", {Text = Instance.Name, Font = 2, Size = 13, Outline = true, Center = true})
+        Components.NameBold = Framework:Draw("Text", {Text = Instance.Name, Font = 2, Size = 13, Center = true})
+        Components.Distance = Framework:Draw("Text", {Font = 2, Size = 13, Outline = true, Center = true})
+        Components.DistanceBold = Framework:Draw("Text", {Font = 2, Size = 13, Center = true})
+        Components.Tool = Framework:Draw("Text", {Font = 2, Size = 13, Outline = true, Center = true})
+        Components.ToolBold = Framework:Draw("Text", {Font = 2, Size = 13, Center = true})
+        Components.Health = Framework:Draw("Text", {Font = 2, Size = 13, Outline = true, Center = true})
+        Components.HealthBold = Framework:Draw("Text", {Font = 2, Size = 13, Center = true})
+        Components.Chams = _G.chamsEnabled == true and Framework:Instance("Highlight", {Parent = CoreGui, DepthMode = Enum.HighlightDepthMode.AlwaysOnTop}) or true
+        Components.Image = Framework:Draw("Image", {Data = self.Settings.Image.Raw})
+        self.Objects[Instance] = Object
+        return Object
+    end
+    function ESP:Object(Instance, Data)
+        if Data == nil or type(Data) ~= "table" then
+            return warn("error: function ESP.Object argument #2 expected table, got nil")
+        end
+        local Addition = Data.Addition or Data.addition or Data.add or Data.Add or {}
+        if Addition.Text == nil then
+            Addition.Text = Addition.text or ""
+        end
+        if Addition.Color == nil then
+            Addition.Color = Addition.Color or Addition.color or Addition.col or Addition.Col or Color3.new(1, 1, 1)
+        end
+        local obj = Data.Object or Data.object or Data.Obj or Data.obj or Instance
+        local col = Data.Color or Data.color or Data.col or Data.Col or Color3.new(1, 1, 1)
+        local out = Data.outline or Data.Outline or false
+        local trans = Data.trans or Data.Trans or Data.Transparency or Data.transparency or Data.Alpha or Data.alpha or 1
+        local Object = setmetatable({
+            Object = obj,
+            PrimaryPart = Data.PrimaryPart or Data.primarypart or Data.pp or Data.PP or Data.primpart or Data.PrimPart or Data.PPart or Data.ppart or Data.pPart or Data.Ppart or obj:IsA("Model") and obj.PrimaryPart or obj:FindFirstChildOfClass("BasePart") or obj:IsA("BasePart") and obj or nil,
+            Addition = Addition,
+            Components = {},
+            Type = Data.Type,
+            Name = (Data.Name ~= nil and Data.Name) or Instance.Name
+        }, Object_Metatable)
+        if Object.PrimaryPart == nil then
+            return
+        end
+        if self:GetObject(Instance) then
+            self:GetObject(Instance):Destroy()
+        end
+        local Components = Object.Components
+        Components.Name = Framework:Draw("Text", {Text = Object.Name, Color = col, Font = 2, Size = 13, Outline = out, Center = true, Transparency = trans})
+        Components.Addition = Framework:Draw("Text", {Text = Object.Addition.Text, Color = Object.Addition.Color, Font = 2, Size = 13, Outline = out, Center = true, Transparency = trans})
+        self.Objects[Instance] = Object
+        return Object
+    end
+end
+
+-- China Hat
+for i = 1, 30 do
+    ESP.China_Hat[i] = {Framework:Draw('Line', {Visible = false}), Framework:Draw('Triangle', {Visible = false})}
+    ESP.China_Hat[i][1].ZIndex = 2;
+    ESP.China_Hat[i][1].Thickness = 2;
+    ESP.China_Hat[i][2].ZIndex = 1;
+    ESP.China_Hat[i][2].Filled = true;
+end
+
+-- Render Connection
+local Connection = RunService.RenderStepped:Connect(function()
+    -- Object Updating
+    for i, Object in pairs(ESP.Objects) do
+        Object:Update()
+    end
+
+    -- China Hat
+    local China_Hat_Settings = ESP.Settings.China_Hat
+    if ESP.Settings.China_Hat.Enabled then
+        local China_Hat = ESP.China_Hat
+        for i = 1, #ESP.China_Hat do
+            local Line, Triangle = China_Hat[i][1], China_Hat[i][2];
+            if LocalPlayer.Character ~= nil and LocalPlayer.Character:FindFirstChild('Head') and LocalPlayer.Character.Humanoid.Health > 0 then
+                local Position = LocalPlayer.Character.Head.Position + Vector3.new(0, China_Hat_Settings.Offset, 0);
+                local Last, Next = (i / 30) * math.pi*2, ((i + 1) / 30) * math.pi*2;
+                local lastScreen, onScreenLast = Camera:WorldToViewportPoint(Position + (Vector3.new(math.cos(Last), 0, math.sin(Last)) * China_Hat_Settings.Radius));
+                local nextScreen, onScreenNext = Camera:WorldToViewportPoint(Position + (Vector3.new(math.cos(Next), 0, math.sin(Next)) * China_Hat_Settings.Radius));
+                local topScreen, onScreenTop = Camera:WorldToViewportPoint(Position + Vector3.new(0, China_Hat_Settings.Height, 0));
+                if not onScreenLast or not onScreenNext or not onScreenTop then
+                    Line.Transparency = 0
+                    Triangle.Transparency = 0
+                    continue
                 end
-                if component.StartDrag and component:StartDrag(mx, my) then
-                    return
-                end
+                Line.From = Vector2.new(lastScreen.X, lastScreen.Y);
+                Line.To = Vector2.new(nextScreen.X, nextScreen.Y);
+                Line.Color = China_Hat_Settings.Color
+                Line.Transparency = Framework:Drawing_Transparency(China_Hat_Settings.Transparency)
+                Triangle.PointA = Vector2.new(topScreen.X, topScreen.Y);
+                Triangle.PointB = Line.From;
+                Triangle.PointC = Line.To;
+                Triangle.Color = China_Hat_Settings.Color
+                Triangle.Transparency = Framework:Drawing_Transparency(China_Hat_Settings.Transparency)
             end
         end
     end
-    
-    if ActiveDropdown then
-        ActiveDropdown:HandleClick(mx, my)
-    end
-    
-    local leftAbsPos = self.leftPanel.AbsolutePosition
-    local leftAbsSize = self.leftPanel.AbsoluteSize
-    local rightAbsPos = self.rightPanel.AbsolutePosition
-    local rightAbsSize = self.rightPanel.AbsoluteSize
-    
-    if PointInRect(mx, my, leftAbsPos.X, leftAbsPos.Y, leftAbsSize.X, leftAbsSize.Y) or
-       PointInRect(mx, my, rightAbsPos.X, rightAbsPos.Y, rightAbsSize.X, rightAbsSize.Y) then
-        self.dragging = true
-        self.dragOffset.x = mx - Panel.x
-        self.dragOffset.y = my - Panel.y
-    end
-end
+end)
 
-function Library:HandleInput()
-    if not GUI_Visible or not GUI_Initialized then
-        self.dragging = false
-        self.wasLeftPressed = false
-        for _, tab in ipairs(self.tabs) do
-            for _, section in ipairs(tab.sections) do
-                for _, component in ipairs(section.components) do
-                    if component.StopDrag then
-                        component:StopDrag()
-                    end
-                end
-            end
-        end
-        ScrollManager:StopThumbDrag()
-        return
-    end
-    
-    local mouse = UserInputService:GetMouseLocation()
-    local mx, my = mouse.X, mouse.Y
-    local leftPressed = UserInputService:IsMouseButtonPressed(Enum.UserInputType.MouseButton1)
-    
-    if leftPressed then
-        if self.activeTab then
-            for _, section in ipairs(self.activeTab.sections) do
-                for _, component in ipairs(section.components) do
-                    if component.HandleDrag then
-                        component:HandleDrag(mx, my)
-                    end
-                end
-            end
-        end
-        
-        ScrollManager:HandleThumbDrag(mx, my)
-        
-        if not self.wasLeftPressed then
-            self:HandleClick(mx, my)
-        end
-    else
-        if self.wasLeftPressed then
-            if self.activeTab then
-                for _, section in ipairs(self.activeTab.sections) do
-                    for _, component in ipairs(section.components) do
-                        if component.StopDrag then
-                            component:StopDrag()
-                        end
-                    end
-                end
-            end
-            ScrollManager:StopThumbDrag()
-        end
-        self.dragging = false
-    end
-    
-    if self.dragging then
-        Panel.x = mx - self.dragOffset.x
-        Panel.y = my - self.dragOffset.y
-        
-        self.leftPanel.Position = UDim2.new(0, Panel.x, 0, Panel.y)
-        self.rightPanel.Position = UDim2.new(0, Panel.x + CONFIG.GUI.LEFT_WIDTH, 0, Panel.y)
-    end
-    
-    self.wasLeftPressed = leftPressed
-end
-
-function Library:HandleToggle()
-    if UserInputService:IsKeyDown(CONFIG.TOGGLE_KEY) then
-        local now = tick()
-        if now - self.lastToggle > CONFIG.TOGGLE_COOLDOWN then
-            GUI_Visible = not GUI_Visible
-            self:SetVisible(GUI_Visible)
-            self.lastToggle = now
-        end
-    end
-end
-
-function Library:StartLoop()
-    RunService.RenderStepped:Connect(function()
-        self:HandleToggle()
-        self:HandleInput()
-        self:UpdateBlocks()
-    end)
-end
-
-function Library:Unload()
-    if ScreenGui then
-        ScreenGui:Destroy()
-    end
-    GUI_Visible = false
-    GUI_Initialized = false
-    print("[UI Library] Unloaded")
-end
-
-return Library
+return ESP, Connection, Framework
